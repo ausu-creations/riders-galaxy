@@ -1,880 +1,25 @@
+/* ==========================================================================
+   1. VARIABLES & BASE SETUP (BMW MOTORRAD THEME)
+   ========================================================================== */
 :root {
-  --accent-red: #f44336;
+  --bmw-red: #e20613;       /* Iconic M Motorsport Red */
+  --bmw-blue: #0066bf;      /* Racing Blue Accent */
+  --bmw-dark-navy: #0a111e; /* Deep Motorsport Navy */
+  --bmw-card-navy: #111a2e; /* Card & Container Depth */
+  --bmw-border-blue: #1d2a44;/* Subtle Navy Border */
+  --bmw-white: #ffffff;
 }
 
-/* Container for the entire bar */
-.top-utility-bar {
-  background-color: #98031c; /* Vibrant red color matching the site */
-  color: #ffffff;            /* White text */
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 40px;          /* Adjust padding for top/bottom and sides */
-  font-family: 'Helvetica Neue', Arial, sans-serif;
-  font-size: 12px;            /* Sleek, small text size */
-  letter-spacing: 0.5px;
-}
-
-/* Left & Right spacing adjustments */
-.top-bar-left .icon-text, 
-.top-bar-right a {
-  margin-right: 15px;
-  color: #ffffff;
-  text-decoration: none;
-  transition: opacity 0.2s ease;
-}
-
-/* Hover effect for links */
-.top-bar-right a:hover {
-  opacity: 0.8;
-}
-
-/* Center promo styling */
-.top-bar-center {
-  font-weight: 700;           /* Bold text to grab attention */
-  text-transform: uppercase;
-}
-
-/* Little divider pipe styling */
-.top-bar-right .divider {
-  margin-right: 15px;
-  opacity: 0.5;
-}
-
-/* --- UPPER ROW STYLING --- */
-.header-main-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #1e293b;
-  padding: 15px 40px;
-  border-bottom: 1px solid #1e293b; 
-}
-
-/* Logo Alignment */
-.logo-container .logo {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  gap: 10px;
-}
-
-/* Search Input Box */
-.search-container {
-  display: flex;
-  flex: 0 1 550px; /* Constraints length dynamically */
-  margin: 0 20px;
-}
-.search-container input {
-  width: 100%;
-  padding: 12px 16px;
-  border: none;
-  border-radius: 4px 0 0 4px;
-  background-color: #27416d;
-  color: #ffffff;
-  font-size: 13px;
-}
-.search-container input:focus {
-  outline: 1px solid #98031c;
-}
-.search-container .search-btn {
-  background-color: #98031c;
-  border: none;
-  padding: 0 18px;
-  border-radius: 0 4px 4px 0;
-  cursor: pointer;
-  color: #ffffff;
-}
-
-/* Action Utility Icons */
-.header-actions {
-  display: flex;
-  gap: 22px;
-  align-items: center;
-}
-.action-item {
-  color: #ffffff;
-  text-decoration: none;
-  font-size: 18px;
-  position: relative;
-  transition: transform 0.2s ease;
-}
-.action-item:hover {
-  transform: scale(1.1);
-}
-.cart-badge {
-  position: absolute;
-  top: -8px;
-  right: -10px;
-  background-color: #d90429;
-  color: white;
-  font-size: 10px;
-  font-weight: bold;
-  padding: 2px 6px;
-  border-radius: 50%;
-}
-
-/* --- NAVIGATION ROW BASE --- */
-.header-nav-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 40px;
-  background-color: #0b0e14; /* Deep dark background */
-  position: relative;
-  z-index: 100; /* Keeps dropdowns floating completely above the body content */
-  border-bottom: 2px solid #ff003c; /* Red highlight border seen under active items */
-}
-
-.nav-links {
-  display: flex;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-/* Parent container for the links */
-.nav-links > li {
-  position: relative; /* Essential context anchoring for absolute sub-menus */
-}
-
-/* Base style for main navbar buttons */
-.nav-links > li > a {
-  display: inline-block;
-  color: #ffffff;
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 15px 20px;
-  transition: color 0.2s ease;
-}
-
-.nav-links > li:hover > a, 
-.nav-links > li > a.show {
-  color: #ffcc00; /* Yellow text for highlighted active category */
-}
-
-/* Target indicators (little down arrows) */
-.nav-links .arrow {
-  font-size: 8px;
-  margin-left: 4px;
-  color: #64748b;
-  transition: transform 0.2s ease;
-}
-
-/* Rotate indicator arrow when container is hovered */
-.nav-links > li:hover .arrow {
-  transform: rotate(180deg);
-  color: #d90429;
-}
-
-/* --- DROPDOWN PANEL LAYOUT --- */
-.dropdown-menu {
-  position: absolute;
-  top: 100%; /* Spawns container flush at the bottom boundary of the row */
-  left: 0;
-  min-width: 220px;
-  background-color: #111827; /* Marginally lighter dark layout for depth contrast */
-  border-top: 3px solid #d90429; /* Red accent header indicator strip */
-  list-style: none;
-  padding: 8px 0;
-  margin: 0;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.5);
-  border-radius: 0 0 4px 4px;
-  
-  /* Hidden State Transitions */
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(10px);
-  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
-}
-
-.dropdown-menu.show {
-  display: block;
-}
-
-/* Trigger panel display state on parent mouse hover */
-.dropdown:hover .dropdown-menu {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-
-/* --- DROPDOWN SUB-LINKS --- */
-.dropdown-menu li a {
-  display: block;
-  padding: 10px 20px;
-  color: #94a3b8;
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 600;
-  transition: all 0.2s ease;
-}
-
-.dropdown-menu li a:hover {
-  background-color: #1e293b; /* Subtle card highlight */
-  color: #ffffff;
-  padding-left: 24px; /* Creates an interactive sliding shift inwards */
-}
-
-/* --- RIGHT SIDE BUTTON INTERACTION --- */
-.nav-cta {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.cta-label {
-  font-size: 11px;
-  color: #94a3b8;
-  font-weight: bold;
-}
-
-.cta-button {
-  background-color: #ffcc00; /* Vibrant high contrast highlight yellow */
-  color: #0b0f19;
-  text-decoration: none;
-  font-size: 12px;
-  font-weight: 800;
-  padding: 8px 16px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
-}
-
-.cta-button:hover {
-  background-color: #e6b800;
-}
-
-/* --- RESPONSIVE MEDIA QUERIES --- */
-@media (max-width: 768px) {
-  .top-bar-left, .top-bar-right {
-    display: none; /* Hide phone, location, and track order on mobile */
-  }
-  .top-utility-bar {
-    justify-content: center; /* Center the remaining promo text */
-    padding: 8px 10px;
-  }
-}
-
-@media (max-width: 992px) {
-  .header-nav-row, 
-  .search-container {
-    display: none; /* Moves navigation links to a hidden drawer menu setup */
-  }
-  
-  .header-main-row {
-    padding: 15px 20px;
-  }
-}
-
-/* --- CORE STYLING & BASE FONTS --- */
 body {
-  background-color: #050915; /* Base Dark Navy Theme background */
+  background-color: var(--bmw-dark-navy);
   font-family: 'Inter', sans-serif;
   margin: 0;
   overflow-x: hidden;
 }
 
-.fw-black {
-  font-weight: 900;
-}
-
-/* --- HERO OVERLAY CONTAINER --- */
-.hero-carousel-wrapper {
-  height: 75vh;
-  min-height: 550px;
-  background-color: #050915;
-}
-
-.carousel, .carousel-inner, .carousel-item {
-  height: 100%;
-}
-
-/* Dynamic background handling image covering */
-.hero-slide-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  z-index: 0;
-}
-
-/* --- TYPOGRAPHY DECORATION --- */
-.sub-heading-badge {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 14px;
-  letter-spacing: 3px;
-}
-
-.main-hero-title {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: calc(2.5rem + 3.5vw);
-  line-height: 0.95;
-  letter-spacing: -0.5px;
-}
-
-.text-secondary-white {
-  color: rgba(255, 255, 255, 0.75);
-}
-
-/* --- BUTTON INTERACTIONS --- */
-.btn-action-red {
-  background-color: #dc0032; /* Red Bull Palette Crimson */
-  color: #ffffff;
-  border: none;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 15px;
-  letter-spacing: 1px;
-  border-radius: 2px;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-.btn-action-red:hover {
-  background-color: #b30026;
-  color: #ffffff;
-  transform: translateY(-2px);
-}
-
-.btn-action-outline {
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  color: #ffffff;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 15px;
-  letter-spacing: 1px;
-  border-radius: 2px;
-  transition: all 0.2s ease;
-}
-.btn-action-outline:hover {
-  background-color: #ffffff;
-  color: #050915;
-  border-color: #ffffff;
-  transform: translateY(-2px);
-}
-
-/* --- CUSTOM DIGITAL COUNTER INDICATOR --- */
-.carousel-numeric-indicator {
-  position: absolute;
-  bottom: 40px;
-  right: 60px;
-  z-index: 15;
-  font-family: 'Barlow Condensed', sans-serif;
-  user-select: none;
-}
-
-.carousel-numeric-indicator .current-num {
-  font-size: 38px;
-  font-weight: 900;
-  color: #FFC906 !important; /* Yellow theme color accent */
-  line-height: 1;
-}
-
-.carousel-numeric-indicator .indicator-divider {
-  width: 40px;
-  height: 2px;
-  background-color: rgba(255, 255, 255, 0.3);
-  display: inline-block;
-}
-
-.carousel-numeric-indicator .total-num {
-  font-size: 18px;
-  font-weight: 700;
-  vertical-align: bottom;
-  margin-bottom: 4px;
-}
-
-/* Hide navigation arrows slightly to clean space unless hovered */
-.carousel-control-prev, .carousel-control-next {
-  width: 5%;
-  opacity: 0.2;
-  transition: opacity 0.3s ease;
-}
-.carousel-carousel-wrapper:hover .carousel-control-prev,
-.carousel-carousel-wrapper:hover .carousel-control-next {
-  opacity: 0.7;
-}
-
-/* --- TICKER BANNER RIBBON --- */
-.ticker-ribbon {
-  background-color: #dc0032; /* Solid primary red backing strip */
-  color: #ffffff;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 900;
-  font-size: 14px;
-  letter-spacing: 1.5px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  width: 100%;
-  overflow: hidden;
-  display: flex;
-}
-
-.ticker-track {
-  display: flex;
-  width: max-content;
-  /* Adjust the time (20s) to make it scroll faster or slower */
-  animation: scrollMarquee 20s linear infinite;
-}
-
-.ticker-group {
-  display: flex;
-  align-items: center;
-  /* Forces the duplicate to be the exact same width as the original */
-  flex-shrink: 0; 
-}
-
-.ticker-group span {
-  /* Using consistent side padding guarantees a seamless connection point */
-  padding: 0 35px; 
-  white-space: nowrap;
-}
-
-/* 
-  The Magic: By translating exactly -50%, the second group takes 
-  the exact position of the first group right before resetting. 
-*/
-@keyframes scrollMarquee {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-/* --- SECTION STYLING BASE --- */
-.accessories-section {
-  background-color: #050915; /* Match core deep navy site block context */
-  font-family: 'Inter', sans-serif;
-}
-
-.header-title {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 900;
-  letter-spacing: -0.5px;
-}
-
-/* Custom Red block title dot accent */
-.title-dot {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  background-color: #dc0032;
-  margin-left: 6px;
-}
-
-.fs-7 {
-  font-size: 12px;
-}
-
-.tracking-wider {
-  letter-spacing: 2px;
-}
-
-/* View All Link Animation */
-.view-all-link {
-  font-family: 'Barlow Condensed', sans-serif;
-  letter-spacing: 1px;
-  border-bottom: 2px solid #dc0032;
-  padding-bottom: 2px;
-  transition: all 0.2s ease-in-out;
-}
-.view-all-link:hover {
-  color: #FFC906 !important;
-}
-.view-all-link:hover .arrow-shift {
-  display: inline-block;
-  transform: translateX(4px);
-  transition: transform 0.2s ease;
-}
-
-/* --- MATERIAL CARD COMPONENTS --- */
-.category-card {
-  background-color: #0b0f19; /* Slightly elevated card base navy tint */
-  border: 1px solid #1e293b;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.3s ease;
-}
-
-/* Precise Image Overflow Bounds Handling Hover Scale */
-.card-img-wrapper {
-  position: relative;
-  overflow: hidden;
-  aspect-ratio: 1 / 1; /* Keeps product panels perfectly square */
-  background-color: #111827;
-}
-
-.card-img-wrapper img {
-  object-fit: cover;
-  height: 100%;
-  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-/* Image Count Tag Badge Overlay */
-.badge-products {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  background-color: #dc0032; /* Primary aggressive red badge */
-  color: #ffffff;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 900;
-  font-size: 11px;
-  letter-spacing: 0.5px;
-  padding: 4px 8px;
-  z-index: 2;
-  border-radius: 2px;
-}
-
-/* --- LOWER STRIP CONTROLS --- */
-.card-footer-strip {
-  padding: 16px;
-  background-color: #0b0f19;
-  transition: background-color 0.3s ease;
-}
-
-.category-name {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 18px;
-  font-weight: 900;
-  text-transform: uppercase;
-  color: #ffffff;
-  letter-spacing: 0.5px;
-}
-
-.shop-now-text {
-  font-size: 12px;
-  display: block;
-  margin-top: 2px;
-  transition: color 0.3s ease;
-}
-
-.action-arrow-box {
-  width: 36px;
-  height: 36px;
-  background-color: #1e293b;
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  font-weight: bold;
-  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-/* --- COMPLEX COMBINED ACTIVE HOVER EFFECT STATES --- */
-.category-card:hover {
-  transform: translateY(-6px); /* Clean lift-off behavior shadow alignment */
-  border-color: #dc0032;
-  box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.6);
-}
-
-.category-card:hover .card-img-wrapper img {
-  transform: scale(1.06); /* Seamless inward cinematic slow push zoom */
-}
-
-.category-card:hover .action-arrow-box {
-  background-color: #dc0032; /* Arrow element changes to active red status */
-  color: #ffffff;
-  transform: scale(1.05);
-}
-
-.category-card:hover .shop-now-text {
-  color: #ffffff !important;
-}
-
-/* --- ADVENTURE BASE DESIGN LAYERS --- */
-.adventure-section {
-  background-color: #050915; /* Base navy system depth background */
-  font-family: 'Inter', sans-serif;
-}
-
-.font-barlow {
-  font-family: 'Barlow Condensed', sans-serif;
-}
-
-.fw-black {
-  font-weight: 900;
-}
-
-.fs-7 {
-  font-size: 12px;
-}
-
-.tracking-wider {
-  letter-spacing: 2px;
-}
-
-/* --- ADVENTURE BANNER INTERACTIVES --- */
-/* --- SECTION BASE BASEMENT --- */
-.adventure-section {
-  background-color: #050915; /* Deep brand navy space layer background */
-  font-family: 'Inter', sans-serif;
-}
-
-.font-barlow {
-  font-family: 'Barlow Condensed', sans-serif;
-}
-
-.fw-black {
-  font-weight: 900;
-}
-
-.fs-7 {
-  font-size: 12px;
-}
-
-.tracking-wider {
-  letter-spacing: 2px;
-}
-
-/* --- BANNER INTERACTIVE MECHANICS --- */
-.adventure-banner {
-  position: relative;
-  min-height: 380px;
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  z-index: 1; /* Creates an isolated rendering workspace layout boundary */
-}
-
-.adventure-bg-img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center right;
-  z-index: -1; /* Forces the image block down behind all contents */
-}
-
-.adventure-content {
-  position: relative;
-  z-index: 2; /* Explicit high priority rendering elevation overlay */
-}
-
-.main-banner-title {
-  font-family: 'Barlow Condensed', sans-serif;
-  line-height: 0.95;
-  letter-spacing: -0.5px;
-}
-
-.text-danger {
-  color: #dc0032 !important; /* Vivid Crimson Highlight */
-}
-
-.text-secondary-white {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-/* White Accent Action Button */
-.btn-trip-ready {
-  background-color: #ffffff;
-  color: #050915;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 14px;
-  letter-spacing: 1px;
-  border-radius: 2px;
-  transition: all 0.3s ease;
-  border: 2px solid #ffffff;
-}
-
-.btn-trip-ready:hover {
-  background-color: transparent;
-  color: #ffffff;
-  border-color: #ffffff;
-}
-
-.btn-trip-ready:hover .arrow-icon {
-  display: inline-block;
-  transform: translateX(4px);
-  transition: transform 0.2s ease;
-}
-
-/* --- LOWER CONSULTATION ELEMENT STRIP --- */
-.consultation-strip {
-  background-color: #0b0f19; /* Elevated component color tint */
-}
-
-.strip-main-title {
-  font-family: 'Barlow Condensed', sans-serif;
-  letter-spacing: 0.5px;
-}
-
-/* Crimson Palette Support Button */
-.btn-call-ankur {
-  background-color: #dc0032; /* Core brand solid red backdrop block */
-  color: #ffffff;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 14px;
-  letter-spacing: 1px;
-  border-radius: 2px;
-  border: none;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.btn-call-ankur:hover {
-  background-color: #b30026;
-  color: #ffffff;
-  transform: translateY(-2px);
-}
-
-/* --- TOURING SECTION FOUNDATION --- */
-.touring-section {
-  background-color: #050915; /* Seamless deep navy foundation layer */
-  font-family: 'Inter', sans-serif;
-}
-
-.font-barlow {
-  font-family: 'Barlow Condensed', sans-serif;
-}
-
-.fw-black {
-  font-weight: 900;
-}
-
-.fs-7 {
-  font-size: 12px;
-}
-
-.tracking-wider {
-  letter-spacing: 2px;
-}
-
-.header-title {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 900;
-  letter-spacing: -0.5px;
-}
-
-/* Distinctive Red Accent Title Block */
-.title-dot {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  background-color: #dc0032;
-  margin-left: 6px;
-}
-
-/* Header Text link transitions */
-.view-all-link {
-  border-bottom: 2px solid #dc0032;
-  padding-bottom: 2px;
-  transition: color 0.2s ease-in-out;
-}
-.view-all-link:hover {
-  color: #FFC906 !important; /* Glow yellow style interaction text */
-}
-.view-all-link:hover .arrow-shift {
-  display: inline-block;
-  transform: translateX(4px);
-  transition: transform 0.2s ease;
-}
-
-/* --- TOURING MATERIAL COMPONENT CARDS --- */
-.touring-card {
-  background-color: #0b0f19; /* Lighter utility dark tint */
-  border: 1px solid #1e293b;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.3s ease;
-}
-
-.card-img-wrapper {
-  position: relative;
-  overflow: hidden;
-  aspect-ratio: 1 / 1; /* Maintains clean square grids */
-  background-color: #111827;
-}
-
-.card-img-wrapper img {
-  object-fit: cover;
-  height: 100%;
-  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-/* absolute overlay label configurations */
-.badge-count {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  background-color: #dc0032;
-  color: #ffffff;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 900;
-  font-size: 11px;
-  letter-spacing: 0.5px;
-  padding: 4px 8px;
-  z-index: 2;
-  border-radius: 2px;
-}
-
-/* --- FOOTER CARD TEXT STRIPS --- */
-.card-footer-strip {
-  padding: 16px;
-  background-color: #0b0f19;
-  transition: background-color 0.3s ease;
-}
-
-.category-title {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 18px;
-  font-weight: 900;
-  text-transform: uppercase;
-  color: #ffffff;
-  letter-spacing: 0.5px;
-}
-
-.action-text {
-  font-size: 12px;
-  display: block;
-  margin-top: 2px;
-  transition: color 0.3s ease;
-}
-
-.arrow-box {
-  width: 36px;
-  height: 36px;
-  background-color: #1e293b;
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  font-weight: bold;
-  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-/* --- COMPOUND ACTIVE STATES ON MOUSE HOVER --- */
-.touring-card:hover {
-  transform: translateY(-6px);
-  border-color: #dc0032;
-  box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.6);
-}
-
-.touring-card:hover .card-img-wrapper img {
-  transform: scale(1.06); /* Slow elegant image zoom layout */
-}
-
-.touring-card:hover .arrow-box {
-  background-color: #dc0032;
-  transform: scale(1.05);
-}
-
-.touring-card:hover .action-text {
-  color: #ffffff !important;
-}
-
-/* --- BASE SETUP CONFIGURATIONS --- */
-.long-haul-section {
-  background-color: #050915; /* Match core deep dark website layout layer */
-  font-family: 'Inter', sans-serif;
-}
-
+/* ==========================================================================
+   2. REUSABLE UTILITIES & HELPER CLASSES
+   ========================================================================== */
 .font-barlow {
   font-family: 'Barlow Condensed', sans-serif;
 }
@@ -896,20 +41,747 @@ body {
   letter-spacing: 2px;
 }
 
-.main-title {
-  font-family: 'Barlow Condensed', sans-serif;
-  line-height: 0.95;
-  letter-spacing: -0.5px;
+.tracking-widest {
+  letter-spacing: 3px;
+}
+
+.max-w-450 {
+  max-width: 450px;
+}
+
+.opacity-90 {
+  opacity: 0.90;
+}
+
+.text-danger {
+  color: var(--bmw-red) !important;
 }
 
 .text-secondary-white {
   color: rgba(255, 255, 255, 0.75);
 }
 
-/* --- ACTION CONTROLS BUTTONS --- */
+/* --- EXPANDING SEARCH CONTAINER --- */
+.expandable-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 40px;
+  width: 40px; /* Collapsed state width */
+  background-color: transparent;
+  border-radius: 20px;
+  transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1), 
+              background-color 0.3s ease, 
+              box-shadow 0.3s ease;
+  overflow: hidden;
+}
+
+/* --- SEARCH INPUT FIELD --- */
+.expandable-search .search-input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0 40px 0 16px; /* Right padding leaves space for icon */
+  color: #ffffff;
+  font-size: 14px;
+  opacity: 0; /* Hidden while collapsed */
+  transition: opacity 0.3s ease;
+}
+
+.expandable-search .search-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* --- SEARCH BUTTON / ICON --- */
+.expandable-search .search-btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  color: #ffffff;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.expandable-search .search-btn:hover {
+  transform: scale(1.1);
+}
+
+/* --- EXPANDED STATES (Hover, Active Input Focus) --- */
+.expandable-search:hover,
+.expandable-search:focus-within {
+  width: 240px; /* Adjust expanded width as needed */
+  background-color: #27416d; /* Matches search input shade */
+  box-shadow: 0 0 0 1px #98031c; /* Matches site red focus accent */
+}
+
+/* Reveal input text when expanded */
+.expandable-search:hover .search-input,
+.expandable-search:focus-within .search-input {
+  opacity: 1;
+}
+
+/* Section Foundation Base */
+.accessories-section,
+.adventure-section,
+.touring-section,
+.long-haul-section,
+.protection-section,
+.performance-section,
+.offers-section,
+.brand-section,
+.main-site-footer {
+  background-color: var(--bmw-dark-navy);
+  font-family: 'Inter', sans-serif;
+}
+
+/* Section Header Titles & Dot Accents */
+.header-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+
+.title-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  background-color: var(--bmw-red);
+  margin-left: 6px;
+}
+
+/* View All Link Hover Animation */
+.view-all-link {
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: 1px;
+  border-bottom: 2px solid var(--bmw-red);
+  padding-bottom: 2px;
+  transition: all 0.2s ease-in-out;
+}
+
+.view-all-link:hover {
+  color: var(--bmw-blue) !important;
+}
+
+.view-all-link:hover .arrow-shift {
+  display: inline-block;
+  transform: translateX(4px);
+  transition: transform 0.2s ease;
+}
+
+/* Base Badge Overlay Counts */
+.badge-products,
+.badge-count {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background-color: var(--bmw-red);
+  color: #ffffff;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  padding: 4px 8px;
+  z-index: 2;
+  border-radius: 2px;
+}
+
+/* Shared Category & Product Card Base */
+.category-card,
+.touring-card,
+.performance-card {
+  background-color: var(--bmw-card-navy);
+  border: 1px solid var(--bmw-border-blue);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.3s ease;
+}
+
+.category-card:hover,
+.touring-card:hover,
+.performance-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--bmw-blue);
+  box-shadow: 0 12px 20px -5px rgba(0, 102, 191, 0.3);
+}
+
+/* Shared Card Image Wrappers */
+.card-img-wrapper {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  background-color: #070d18;
+}
+
+.card-img-wrapper img {
+  object-fit: cover;
+  height: 100%;
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.category-card:hover .card-img-wrapper img,
+.touring-card:hover .card-img-wrapper img,
+.performance-card:hover .card-img-wrapper img {
+  transform: scale(1.06);
+}
+
+/* Shared Card Footer Strips & Action Boxes */
+.card-footer-strip {
+  padding: 16px;
+  background-color: var(--bmw-card-navy);
+  transition: background-color 0.3s ease;
+}
+
+.category-name,
+.category-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+}
+
+.shop-now-text,
+.action-text {
+  font-size: 12px;
+  display: block;
+  margin-top: 2px;
+  transition: color 0.3s ease;
+}
+
+.category-card:hover .shop-now-text,
+.touring-card:hover .action-text,
+.performance-card:hover .action-text {
+  color: #ffffff !important;
+}
+
+.action-arrow-box,
+.arrow-box {
+  width: 36px;
+  height: 36px;
+  background-color: var(--bmw-border-blue);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.category-card:hover .action-arrow-box,
+.touring-card:hover .arrow-box,
+.performance-card:hover .arrow-box {
+  background-color: var(--bmw-blue);
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+/* ==========================================================================
+   3. TOP UTILITY BAR
+   ========================================================================== */
+.top-utility-bar {
+  background-color: #060a12; /* Sleek ultra-dark top bar */
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 40px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--bmw-border-blue);
+}
+
+.top-bar-left .icon-text, 
+.top-bar-right a {
+  margin-right: 15px;
+  color: #ffffff;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.top-bar-right a:hover {
+  opacity: 0.8;
+}
+
+.top-bar-center {
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--bmw-blue);
+}
+
+.top-bar-right .divider {
+  margin-right: 15px;
+  opacity: 0.5;
+}
+
+/* ==========================================================================
+   4. HEADER MAIN ROW & NAVIGATION
+   ========================================================================== */
+.header-main-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--bmw-dark-navy);
+  padding: 15px 40px;
+  border-bottom: 1px solid var(--bmw-border-blue); 
+}
+
+.logo-container .logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  gap: 10px;
+}
+
+/* Search Box */
+.search-container {
+  display: flex;
+  flex: 0 1 550px;
+  margin: 0 20px;
+}
+
+.search-container input {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 4px 0 0 4px;
+  background-color: var(--bmw-card-navy);
+  color: #ffffff;
+  font-size: 13px;
+}
+
+.search-container input:focus {
+  outline: 1px solid var(--bmw-blue);
+}
+
+.search-container .search-btn {
+  background-color: var(--bmw-blue);
+  border: none;
+  padding: 0 18px;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  color: #ffffff;
+}
+
+/* Actions Header */
+.header-actions {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+}
+
+.action-item {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 18px;
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+.action-item:hover {
+  transform: scale(1.1);
+  color: var(--bmw-blue);
+}
+
+.cart-badge {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  background-color: var(--bmw-red);
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 50%;
+}
+
+/* Navigation Row */
+.header-nav-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  background-color: #060b14;
+  position: relative;
+  z-index: 100;
+  border-bottom: 2px solid var(--bmw-blue); /* M Blue Highlight Line */
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-links > li {
+  position: relative;
+}
+
+.nav-links > li > a {
+  display: inline-block;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 15px 20px;
+  transition: color 0.2s ease;
+}
+
+.nav-links > li:hover > a, 
+.nav-links > li > a.show {
+  color: var(--bmw-blue);
+}
+
+.nav-links .arrow {
+  font-size: 8px;
+  margin-left: 4px;
+  color: #64748b;
+  transition: transform 0.2s ease;
+}
+
+.nav-links > li:hover .arrow {
+  transform: rotate(180deg);
+  color: var(--bmw-red);
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 220px;
+  background-color: var(--bmw-card-navy);
+  border-top: 3px solid var(--bmw-red);
+  list-style: none;
+  padding: 8px 0;
+  margin: 0;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.5);
+  border-radius: 0 0 4px 4px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+
+.dropdown-menu.show {
+  display: block;
+}
+
+.dropdown:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-menu li a {
+  display: block;
+  padding: 10px 20px;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.dropdown-menu li a:hover {
+  background-color: var(--bmw-border-blue);
+  color: #ffffff;
+  padding-left: 24px;
+}
+
+/* Header CTA Button */
+.nav-cta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cta-label {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: bold;
+}
+
+.cta-button {
+  background-color: var(--bmw-blue);
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.cta-button:hover {
+  background-color: #004d90;
+}
+
+/* ==========================================================================
+   5. HERO CAROUSEL
+   ========================================================================== */
+.hero-carousel-wrapper {
+  height: 75vh;
+  min-height: 550px;
+  background-color: var(--bmw-dark-navy);
+}
+
+.carousel, .carousel-inner, .carousel-item {
+  height: 100%;
+}
+
+.hero-slide-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+}
+
+.sub-heading-badge {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: var(--bmw-blue);
+}
+
+.main-hero-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: calc(2.5rem + 3.5vw);
+  line-height: 0.95;
+  letter-spacing: -0.5px;
+}
+
+/* Carousel Buttons */
+.btn-action-red {
+  background-color: var(--bmw-blue);
+  color: #ffffff;
+  border: none;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  letter-spacing: 1px;
+  border-radius: 2px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-action-red:hover {
+  background-color: #004d90;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.btn-action-outline {
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  letter-spacing: 1px;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+}
+
+.btn-action-outline:hover {
+  background-color: #ffffff;
+  color: var(--bmw-dark-navy);
+  border-color: #ffffff;
+  transform: translateY(-2px);
+}
+
+/* Custom Counter Indicator */
+.carousel-numeric-indicator {
+  position: absolute;
+  bottom: 40px;
+  right: 60px;
+  z-index: 15;
+  font-family: 'Barlow Condensed', sans-serif;
+  user-select: none;
+}
+
+.carousel-numeric-indicator .current-num {
+  font-size: 38px;
+  font-weight: 900;
+  color: var(--bmw-blue) !important;
+  line-height: 1;
+}
+
+.carousel-numeric-indicator .indicator-divider {
+  width: 40px;
+  height: 2px;
+  background-color: rgba(255, 255, 255, 0.3);
+  display: inline-block;
+}
+
+.carousel-numeric-indicator .total-num {
+  font-size: 18px;
+  font-weight: 700;
+  vertical-align: bottom;
+  margin-bottom: 4px;
+}
+
+.carousel-control-prev, .carousel-control-next {
+  width: 5%;
+  opacity: 0.2;
+  transition: opacity 0.3s ease;
+}
+
+.carousel-carousel-wrapper:hover .carousel-control-prev,
+.carousel-carousel-wrapper:hover .carousel-control-next {
+  opacity: 0.7;
+}
+
+/* ==========================================================================
+   6. TICKER MARQUEE BANNERS
+   ========================================================================== */
+.ticker-ribbon {
+  background-color: var(--bmw-blue);
+  color: #ffffff;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 1.5px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+}
+
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: scrollMarquee 20s linear infinite;
+}
+
+.ticker-group {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0; 
+}
+
+.ticker-group span {
+  padding: 0 35px; 
+  white-space: nowrap;
+}
+
+@keyframes scrollMarquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ==========================================================================
+   7. ADVENTURE BANNER & CONSULTATION
+   ========================================================================== */
+.adventure-banner {
+  position: relative;
+  min-height: 380px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.adventure-bg-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center right;
+  z-index: -1;
+}
+
+.adventure-content {
+  position: relative;
+  z-index: 2;
+}
+
+.main-banner-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  line-height: 0.95;
+  letter-spacing: -0.5px;
+}
+
+.btn-trip-ready {
+  background-color: #ffffff;
+  color: var(--bmw-dark-navy);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+  border: 2px solid #ffffff;
+}
+
+.btn-trip-ready:hover {
+  background-color: transparent;
+  color: #ffffff;
+  border-color: #ffffff;
+}
+
+.btn-trip-ready:hover .arrow-icon {
+  display: inline-block;
+  transform: translateX(4px);
+  transition: transform 0.2s ease;
+}
+
+/* Lower Consultation Strip */
+.consultation-strip {
+  background-color: var(--bmw-card-navy);
+}
+
+.strip-main-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.btn-call-ankur {
+  background-color: var(--bmw-blue);
+  color: #ffffff;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+  border-radius: 2px;
+  border: none;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-call-ankur:hover {
+  background-color: #004d90;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   8. LONG HAUL & BIKE MATRIX GRID
+   ========================================================================== */
+.main-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  line-height: 0.95;
+  letter-spacing: -0.5px;
+}
+
 .btn-explore {
-  background-color: #ffffff; /* High contrast solid white focus button */
-  color: #050915;
+  background-color: #ffffff;
+  color: var(--bmw-dark-navy);
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 14px;
   letter-spacing: 1px;
@@ -934,36 +806,32 @@ body {
 }
 
 .btn-outline-boxes:hover {
-  border-color: #dc0032; /* Branding accent change response */
-  background-color: #dc0032;
+  border-color: var(--bmw-blue);
+  background-color: var(--bmw-blue);
 }
 
-/* --- LOWER SPECIFICATION DISPLAY BADGES --- */
 .spec-badge {
-  background-color: #0b0f19; /* Standardized card layout dark depth value */
+  background-color: var(--bmw-card-navy);
 }
 
-/* --- BIKE MATRIX GRID TILES --- */
 .fitment-card {
   height: 220px;
   cursor: pointer;
   position: relative;
 }
 
-/* Base structural cover alignment logic for inner image components */
 .fitment-card img {
   transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
   z-index: 1;
 }
 
-/* Gradient overlay shade mapping logic ensuring continuous crisp contrast values */
 .card-image-tint {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(0deg, rgba(5, 9, 21, 0.9) 15%, rgba(5, 9, 21, 0.2) 70%);
+  background: linear-gradient(0deg, rgba(10, 17, 30, 0.9) 15%, rgba(10, 17, 30, 0.2) 70%);
   z-index: 2;
   transition: background 0.3s ease;
 }
@@ -976,61 +844,23 @@ body {
   z-index: 3;
 }
 
-/* --- COMPOUND TRANSLATION TARGET EFFECTS --- */
 .fitment-card:hover img {
-  transform: scale(1.08); /* Slow continuous smooth background tracking push */
+  transform: scale(1.08);
 }
 
 .fitment-card:hover .card-image-tint {
-  background: linear-gradient(0deg, rgba(220, 0, 50, 0.85) 20%, rgba(5, 9, 21, 0.3) 70%); /* Fades seamlessly into solid brand red */
+  background: linear-gradient(0deg, rgba(0, 102, 191, 0.85) 20%, rgba(10, 17, 30, 0.3) 70%);
 }
 
-/* --- PROTECTION WRAPPER CORE --- */
-.protection-section {
-  background-color: #050915; /* Match core system navy background depth */
-  font-family: 'Inter', sans-serif;
-}
-
-.font-barlow {
-  font-family: 'Barlow Condensed', sans-serif;
-}
-
-.fw-black {
-  font-weight: 900;
-}
-
-.fs-7 {
-  font-size: 12px;
-}
-
-.fs-8 {
-  font-size: 11px;
-  letter-spacing: 1.5px;
-}
-
-.tracking-wider {
-  letter-spacing: 2px;
-}
-
+/* ==========================================================================
+   9. PROTECTION SECTION
+   ========================================================================== */
 .main-card-title {
   font-family: 'Barlow Condensed', sans-serif;
   line-height: 0.95;
   letter-spacing: -0.5px;
 }
 
-.text-danger {
-  color: #dc0032 !important; /* Solid brand crimson theme overlay accent */
-}
-
-.text-secondary-white {
-  color: rgba(255, 255, 255, 0.75);
-}
-
-.max-w-450 {
-  max-width: 450px;
-}
-
-/* --- PRIMARY SHIELD BLOCK CARD --- */
 .protection-main-card {
   min-height: 480px;
   position: relative;
@@ -1049,9 +879,8 @@ body {
   transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-/* Solid red action panel control button */
 .btn-shop-protection {
-  background-color: #dc0032;
+  background-color: var(--bmw-blue);
   color: #ffffff;
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 14px;
@@ -1062,7 +891,7 @@ body {
 }
 
 .btn-shop-protection:hover {
-  background-color: #b30026;
+  background-color: #004d90;
   color: #ffffff;
   transform: translateY(-2px);
 }
@@ -1073,7 +902,6 @@ body {
   transition: transform 0.2s ease;
 }
 
-/* --- MINI ELEMENT STACKED TILES --- */
 .protection-mini-card {
   min-height: 228px;
   position: relative;
@@ -1092,7 +920,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(0deg, rgba(5, 9, 21, 0.9) 30%, rgba(5, 9, 21, 0.1) 100%);
+  background: linear-gradient(0deg, rgba(10, 17, 30, 0.9) 30%, rgba(10, 17, 30, 0.1) 100%);
   z-index: 2;
   transition: background 0.3s ease;
 }
@@ -1105,204 +933,21 @@ body {
   z-index: 3;
 }
 
-/* --- MOUSE HOVER STATE MOVEMENT TRANSLATIONS --- */
 .protection-main-card:hover .card-bg-img {
-  transform: scale(1.04); /* Inward push parallax layout zoom */
+  transform: scale(1.04);
 }
 
 .protection-mini-card:hover img {
   transform: scale(1.06);
 }
 
-/* Mini background elements shift into standard solid brand red palette layers */
 .protection-mini-card:hover .mini-image-tint {
-  background: linear-gradient(0deg, rgba(220, 0, 50, 0.85) 35%, rgba(5, 9, 21, 0.2) 100%);
+  background: linear-gradient(0deg, rgba(0, 102, 191, 0.85) 35%, rgba(10, 17, 30, 0.2) 100%);
 }
 
-/* --- PERFORMANCE SECTION FOUNDATION --- */
-.performance-section {
-  background-color: #050915; /* Match core deep navy site block background */
-  font-family: 'Inter', sans-serif;
-}
-
-.font-barlow {
-  font-family: 'Barlow Condensed', sans-serif;
-}
-
-.fw-black {
-  font-weight: 900;
-}
-
-.fs-7 {
-  font-size: 12px;
-}
-
-.tracking-wider {
-  letter-spacing: 2px;
-}
-
-.header-title {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 900;
-  letter-spacing: -0.5px;
-}
-
-/* Red Accent Block */
-.title-dot {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  background-color: #dc0032;
-  margin-left: 6px;
-}
-
-/* Header link transition animations */
-.view-all-link {
-  border-bottom: 2px solid #dc0032;
-  padding-bottom: 2px;
-  transition: color 0.2s ease-in-out;
-}
-.view-all-link:hover {
-  color: #FFC906 !important; /* Glow yellow style interaction text */
-}
-.view-all-link:hover .arrow-shift {
-  display: inline-block;
-  transform: translateX(4px);
-  transition: transform 0.2s ease;
-}
-
-/* --- MATERIAL COMPONENT CARDS --- */
-.performance-card {
-  background-color: #0b0f19; /* Standardized card layout dark depth value */
-  border: 1px solid #1e293b;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.3s ease;
-}
-
-.card-img-wrapper {
-  position: relative;
-  overflow: hidden;
-  aspect-ratio: 1 / 1; /* Square item crop mapping constraints */
-  background-color: #111827;
-}
-
-.card-img-wrapper img {
-  object-fit: cover;
-  height: 100%;
-  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-/* Absolute product counts overlay labels */
-.badge-count {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  background-color: #dc0032;
-  color: #ffffff;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 900;
-  font-size: 11px;
-  letter-spacing: 0.5px;
-  padding: 4px 8px;
-  z-index: 2;
-  border-radius: 2px;
-}
-
-/* --- CARD LOWER STRIPS --- */
-.card-footer-strip {
-  padding: 16px;
-  background-color: #0b0f19;
-  transition: background-color 0.3s ease;
-}
-
-.category-title {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 18px;
-  font-weight: 900;
-  text-transform: uppercase;
-  color: #ffffff;
-  letter-spacing: 0.5px;
-}
-
-.action-text {
-  font-size: 12px;
-  display: block;
-  margin-top: 2px;
-  transition: color 0.3s ease;
-}
-
-.arrow-box {
-  width: 36px;
-  height: 36px;
-  background-color: #1e293b;
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  font-weight: bold;
-  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-/* --- COMPOUND MOUSE HOVER TRANSLATIONS --- */
-.performance-card:hover {
-  transform: translateY(-6px);
-  border-color: #dc0032;
-  box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.6);
-}
-
-.performance-card:hover .card-img-wrapper img {
-  transform: scale(1.06); /* Inward push zoom effect */
-}
-
-.performance-card:hover .arrow-box {
-  background-color: #dc0032;
-  transform: scale(1.05);
-}
-
-.performance-card:hover .action-text {
-  color: #ffffff !important;
-}
-
-/* --- OFFERS BASMENT --- */
-.offers-section {
-  background-color: #050915; /* Seamless deep dark layout block */
-  font-family: 'Inter', sans-serif;
-}
-
-.font-barlow {
-  font-family: 'Barlow Condensed', sans-serif;
-}
-
-.fw-black {
-  font-weight: 900;
-}
-
-.fs-7 {
-  font-size: 12px;
-}
-
-.tracking-wider {
-  letter-spacing: 2px;
-}
-
-.header-title {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 900;
-  letter-spacing: -0.5px;
-}
-
-/* Distinctive Red Accent Header Title Block */
-.title-dot {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  background-color: #dc0032;
-  margin-left: 6px;
-}
-
-/* --- THE VOUCHER CARD ENGINE --- */
+/* ==========================================================================
+   10. OFFERS SECTION & VOUCHER CARDS
+   ========================================================================== */
 .offer-card {
   min-height: 280px;
   border: none;
@@ -1315,13 +960,8 @@ body {
   letter-spacing: -0.5px;
 }
 
-.opacity-90 {
-  opacity: 0.90;
-}
-
-/* Color Variant Red Theme Styles */
 .card-variant-red {
-  background-color: #dc0032;
+  background-color: var(--bmw-blue);
 }
 
 .card-variant-red .coupon-code-strip {
@@ -1333,29 +973,27 @@ body {
 
 .card-variant-red .coupon-code-strip:hover {
   background-color: #ffffff;
-  color: #dc0032;
+  color: var(--bmw-blue);
   border-color: #ffffff;
 }
 
-/* Color Variant Yellow Theme Styles */
 .card-variant-yellow {
-  background-color: #ffc906;
+  background-color: var(--bmw-red);
 }
 
 .card-variant-yellow .coupon-code-strip {
-  border: 2px dashed rgba(5, 9, 21, 0.3);
-  background-color: rgba(5, 9, 21, 0.06);
-  color: #050915;
+  border: 2px dashed rgba(255, 255, 255, 0.4);
+  background-color: rgba(0, 0, 0, 0.15);
+  color: #ffffff;
   transition: all 0.2s ease;
 }
 
 .card-variant-yellow .coupon-code-strip:hover {
-  background-color: #050915;
-  color: #ffc906;
-  border-color: #050915;
+  background-color: #ffffff;
+  color: var(--bmw-red);
+  border-color: #ffffff;
 }
 
-/* --- MOTION INTERACTIONS AND ANIMATIONS --- */
 .offer-card:hover {
   transform: translateY(-6px);
   box-shadow: 0 16px 30px -10px rgba(0, 0, 0, 0.5);
@@ -1372,56 +1010,9 @@ body {
   100% { transform: scale(1); }
 }
 
-/* --- BRAND SECTION FOUNDATION --- */
-.brand-section {
-  background-color: #050915;
-  font-family: 'Inter', sans-serif;
-}
-
-.font-barlow {
-  font-family: 'Barlow Condensed', sans-serif;
-}
-
-.fw-black {
-  font-weight: 900;
-}
-
-.fs-7 {
-  font-size: 12px;
-}
-
-.tracking-wider {
-  letter-spacing: 2px;
-}
-
-.header-title {
-  font-family: 'Barlow Condensed', sans-serif;
-  letter-spacing: -0.5px;
-}
-
-.title-dot {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  background-color: #dc0032;
-  margin-left: 6px;
-}
-
-.view-all-link {
-  border-bottom: 2px solid #dc0032;
-  padding-bottom: 2px;
-  transition: color 0.2s ease-in-out;
-}
-.view-all-link:hover {
-  color: #FFC906 !important;
-}
-.view-all-link:hover .arrow-shift {
-  display: inline-block;
-  transform: translateX(4px);
-  transition: transform 0.2s ease;
-}
-
-/* --- TICKER SCROLL ENGINE --- */
+/* ==========================================================================
+   11. BRAND TICKER SCROLL ENGINE
+   ========================================================================== */
 .brand-ticker-container {
   overflow: hidden;
   display: flex;
@@ -1430,23 +1021,20 @@ body {
 .brand-ticker-track {
   display: flex;
   width: max-content;
-  /* 25-second continuous animation loop */
   animation: brandMarqueeScroll 25s linear infinite;
 }
 
-/* Pause scroll animation on user hover for better accessibility */
 .brand-ticker-track:hover {
   animation-play-state: paused;
 }
 
-/* Individual Card Structural Spacing Wrapper */
 .brand-card-item {
-  flex: 0 0 240px; /* Locks explicit box dimensions so flexbox won't squeeze it */
-  padding: 0 8px; /* Perfectly uniform space between moving cards */
+  flex: 0 0 240px;
+  padding: 0 8px;
 }
 
 .brand-card-inner {
-  background-color: #0b0f19;
+  background-color: var(--bmw-card-navy);
   min-height: 110px;
   width: 100%;
   cursor: pointer;
@@ -1460,10 +1048,9 @@ body {
   transition: all 0.3s ease;
 }
 
-/* --- ACTIVE HOVER TRANSFORM MECHANICS --- */
 .brand-card-inner:hover {
-  border-color: #dc0032 !important;
-  background-color: #111625;
+  border-color: var(--bmw-blue) !important;
+  background-color: var(--bmw-border-blue);
   transform: translateY(-4px);
 }
 
@@ -1472,83 +1059,42 @@ body {
   color: #ffffff !important;
 }
 
-/* --- THE INFINITE LOOP CSS KEYFRAME --- */
 @keyframes brandMarqueeScroll {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    /* Shifts exactly half the track width (the duplicate mark boundary) */
-    transform: translateX(-50%);
-  }
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
-/* --- UNIFIED FOOTER CORE BASEMENT --- */
-.main-site-footer {
-  background-color: #050915; 
-  font-family: 'Inter', sans-serif;
-}
-
-.font-barlow {
-  font-family: 'Barlow Condensed', sans-serif;
-}
-
-.fw-black {
-  font-weight: 900;
-}
-
-.fs-7 {
-  font-size: 12px;
-}
-
-.fs-8 {
-  font-size: 11px;
-  letter-spacing: 1px;
-}
-
-.tracking-wider {
-  letter-spacing: 2px;
-}
-
-.tracking-widest {
-  letter-spacing: 3px;
-}
-
-.text-danger {
-  color: #dc0032 !important; 
-}
-
-/* --- PART 1: VALUE PROP PROPOSITION TILES --- */
+/* ==========================================================================
+   12. FOOTER COMPONENTS
+   ========================================================================== */
 .prop-tile {
-  background-color: #0b0f19; 
+  background-color: var(--bmw-card-navy); 
   transition: border-color 0.2s ease;
 }
 
 .prop-tile:hover {
-  border-color: rgba(255, 201, 6, 0.4) !important; 
+  border-color: var(--bmw-blue) !important; 
 }
 
-/* --- PART 2: TRIBE NEWSLETTER STRIP WITH DYNAMIC GRADIENT --- */
 .newsletter-strip {
-  /* Dynamic rich metallic indigo-to-dark gradient */
-  background: linear-gradient(135deg, #0b0f19 0%, #161f33 100%);
+  background: linear-gradient(135deg, var(--bmw-card-navy) 0%, var(--bmw-border-blue) 100%);
   box-shadow: inset 0 1px 0px rgba(255, 255, 255, 0.05);
 }
 
 .newsletter-form .form-control {
   border: 1px solid rgba(255, 255, 255, 0.15);
-  background-color: rgba(5, 9, 21, 0.4) !important;
+  background-color: rgba(10, 17, 30, 0.4) !important;
   font-size: 14px;
 }
 
 .newsletter-form .form-control:focus {
   outline: none;
   box-shadow: none;
-  border-color: #ffc906; 
+  border-color: var(--bmw-blue); 
 }
 
 .btn-subscribe {
-  background-color: #dc0032;
+  background-color: var(--bmw-blue);
   color: #ffffff;
   border: none;
   font-size: 14px;
@@ -1557,11 +1103,10 @@ body {
 }
 
 .newsletter-form .btn-subscribe:hover {
-  background-color: #b30026;
+  background-color: #004d90;
   color: #ffffff;
 }
 
-/* --- PART 3: MAIN LOWER GRID LINKS ELEMENTS --- */
 .brand-wrapper-box {
   line-height: 1;
 }
@@ -1569,8 +1114,8 @@ body {
 .brand-logo-badge {
   width: 32px;
   height: 32px;
-  background-color: #ffc906;
-  color: #050915;
+  background-color: var(--bmw-blue);
+  color: #ffffff;
   border-radius: 4px;
   font-weight: 900;
   font-size: 16px;
@@ -1582,6 +1127,30 @@ body {
 }
 
 .footer-links-list a:hover {
-  color: #ffffff !important; 
+  color: var(--bmw-blue) !important; 
   transform: translateX(3px); 
+}
+
+/* ==========================================================================
+   13. MEDIA QUERIES
+   ========================================================================== */
+@media (max-width: 768px) {
+  .top-bar-left, .top-bar-right {
+    display: none;
+  }
+  .top-utility-bar {
+    justify-content: center;
+    padding: 8px 10px;
+  }
+}
+
+@media (max-width: 992px) {
+  .header-nav-row, 
+  .search-container {
+    display: none;
+  }
+  
+  .header-main-row {
+    padding: 15px 20px;
+  }
 }
