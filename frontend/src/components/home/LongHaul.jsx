@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import RynoxImg from "../../assets/images/rynox.jpg";
 import ViaterraImg from "../../assets/images/Viaterra.png";
 import LoneRangerImg from "../../assets/images/loneranger.png";
-import RaidaImg from "../../assets/images/Raida.png";
+import RaidaImg from "../../assets/images/raida.png";
 
 export default function LongHaul() {
   return (
