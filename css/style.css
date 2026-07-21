@@ -1,0 +1,1357 @@
+/* ==========================================================================
+   1. VARIABLES & BASE SETUP (PREMIUM LIGHT THEME)
+   ========================================================================== */
+:root {
+  /* Soft, refined accent colors */
+  --theme-accent-red: #d92d20;     /* Refined, less aggressive red */
+  --theme-accent-blue: #026aa7;    /* Trustworthy, premium blue */
+  
+  /* Light theme backgrounds */
+  --theme-bg-main: #f8fafc;        /* Very soft slate/gray for the main body */
+  --theme-bg-card: #ffffff;        /* Pure white for cards to pop */
+  --theme-bg-header: #ffffff;      /* Crisp white navigation */
+  --theme-bg-topbar: #f1f5f9;      /* Subtle contrast for the top utility bar */
+  
+  /* Text & Borders */
+  --theme-text-main: #0f172a;      /* Slate 900 - Softer than pure black */
+  --theme-text-muted: #64748b;     /* Slate 500 for secondary text */
+  --theme-border: #e2e8f0;         /* Gentle gray borders */
+  --theme-white: #ffffff;
+}
+
+body {
+  background-color: var(--theme-bg-main);
+  color: var(--theme-text-main);
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+/* ==========================================================================
+   2. REUSABLE UTILITIES & HELPER CLASSES
+   ========================================================================== */
+.font-barlow {
+  font-family: 'Barlow Condensed', sans-serif;
+}
+
+.fw-black {
+  font-weight: 800; /* Dropped from 900 to 800 for a more elegant look in light mode */
+}
+
+.fs-7 { font-size: 12px; }
+.fs-8 { font-size: 10px; letter-spacing: 1px; }
+
+.tracking-wider { letter-spacing: 2px; }
+.tracking-widest { letter-spacing: 3px; }
+.max-w-450 { max-width: 450px; }
+.opacity-90 { opacity: 0.90; }
+
+.text-danger { color: var(--theme-accent-red) !important; }
+
+/* Repurposed for light theme (keeps class name if used in HTML, but makes it dark) */
+.text-secondary-white { color: var(--theme-text-muted); }
+
+/* --- EXPANDING SEARCH CONTAINER --- */
+.expandable-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 40px;
+  width: 40px; 
+  background-color: transparent;
+  border-radius: 20px;
+  transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1), 
+              background-color 0.3s ease, 
+              box-shadow 0.3s ease;
+  overflow: hidden;
+}
+
+.expandable-search .search-input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0 40px 0 16px; 
+  color: var(--theme-text-main);
+  font-size: 14px;
+  opacity: 0; 
+  transition: opacity 0.3s ease;
+}
+
+.expandable-search .search-input::placeholder {
+  color: var(--theme-text-muted);
+}
+
+.expandable-search .search-btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  color: var(--theme-text-main);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.expandable-search .search-btn:hover {
+  transform: scale(1.1);
+  color: var(--theme-accent-blue);
+}
+
+.expandable-search:hover,
+.expandable-search:focus-within {
+  width: 240px; 
+  background-color: var(--theme-white); 
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Soft drop shadow */
+  border: 1px solid var(--theme-border);
+}
+
+.expandable-search:hover .search-input,
+.expandable-search:focus-within .search-input {
+  opacity: 1;
+}
+
+/* Section Foundation Base */
+.accessories-section, .adventure-section, .touring-section,
+.long-haul-section, .protection-section, .performance-section,
+.offers-section, .brand-section, .main-site-footer {
+  background-color: var(--theme-bg-main);
+  font-family: 'Inter', sans-serif;
+}
+
+/* Section Header Titles & Dot Accents */
+.header-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--theme-text-main);
+}
+
+.title-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  background-color: var(--theme-accent-red);
+  margin-left: 6px;
+}
+
+/* View All Link Hover Animation */
+.view-all-link {
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: 1px;
+  border-bottom: 2px solid var(--theme-accent-red);
+  padding-bottom: 2px;
+  color: var(--theme-text-main);
+  transition: all 0.2s ease-in-out;
+}
+
+.view-all-link:hover {
+  color: var(--theme-accent-blue) !important;
+  border-bottom-color: var(--theme-accent-blue);
+}
+
+.view-all-link:hover .arrow-shift {
+  display: inline-block;
+  transform: translateX(4px);
+  transition: transform 0.2s ease;
+}
+
+/* Base Badge Overlay Counts */
+.badge-products,
+.badge-count {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background-color: var(--theme-accent-red);
+  color: #ffffff;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  padding: 4px 8px;
+  z-index: 2;
+  border-radius: 4px; /* Slightly more rounded */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Shared Category & Product Card Base */
+.category-card, .touring-card, .performance-card {
+  background-color: var(--theme-bg-card);
+  border: 1px solid var(--theme-border);
+  border-radius: 15px; /* More modern rounding */
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+  overflow: hidden;
+}
+
+.category-card:hover, .touring-card:hover, .performance-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--theme-accent-blue);
+  box-shadow: 0 12px 24px -8px rgba(2, 106, 167, 0.15); /* Soft, colored shadow */
+}
+
+/* Shared Card Image Wrappers */
+.card-img-wrapper {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  background-color: #f1f5f9; /* Light placeholder background */
+  border-radius: 10px;
+}
+
+.card-img-wrapper img {
+  object-fit: cover;
+  height: 100%;
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.category-card:hover .card-img-wrapper img,
+.touring-card:hover .card-img-wrapper img,
+.performance-card:hover .card-img-wrapper img {
+  transform: scale(1.06);
+}
+
+/* Shared Card Footer Strips & Action Boxes */
+.card-footer-strip {
+  padding: 10px;
+  background-color: var(--theme-bg-card);
+  border-top: 1px solid var(--theme-border);
+  transition: background-color 0.3s ease;
+}
+
+.category-name, .category-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--theme-text-main);
+  letter-spacing: 0.5px;
+}
+
+.shop-now-text, .action-text {
+  font-size: 10px;
+  display: block;
+  margin-top: 2px;
+  color: var(--theme-text-muted);
+  transition: color 0.3s ease;
+}
+
+.category-card:hover .shop-now-text,
+.touring-card:hover .action-text,
+.performance-card:hover .action-text {
+  color: var(--theme-accent-blue) !important;
+}
+
+.action-arrow-box, .arrow-box {
+  width: 36px;
+  height: 36px;
+  background-color: var(--theme-bg-main);
+  color: var(--theme-text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-weight: bold;
+  border: 1px solid var(--theme-border);
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.category-card:hover .action-arrow-box,
+.touring-card:hover .arrow-box,
+.performance-card:hover .arrow-box {
+  background-color: var(--theme-accent-blue);
+  border-color: var(--theme-accent-blue);
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+/* ==========================================================================
+   3. TOP UTILITY BAR
+   ========================================================================== */
+.top-utility-bar {
+  background-color: var(--theme-bg-topbar); 
+  color: var(--theme-text-muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 40px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--theme-border);
+}
+
+.top-bar-left .icon-text, 
+.top-bar-right a {
+  margin-right: 15px;
+  color: var(--theme-text-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.top-bar-right a:hover {
+  color: var(--theme-accent-blue);
+}
+
+.top-bar-center {
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--theme-accent-blue);
+}
+
+.top-bar-right .divider {
+  margin-right: 15px;
+  opacity: 0.3;
+}
+
+/* ==========================================================================
+   4. HEADER MAIN ROW & NAVIGATION
+   ========================================================================== */
+.header-main-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--theme-bg-header);
+  padding: 15px 40px;
+  border-bottom: 1px solid var(--theme-border); 
+}
+
+.logo-container .logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  gap: 10px;
+}
+
+/* Search Box */
+.search-container {
+  display: flex;
+  flex: 0 1 550px;
+  margin: 0 20px;
+}
+
+.search-container input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--theme-border);
+  border-right: none;
+  border-radius: 4px 0 0 4px;
+  background-color: var(--theme-bg-main);
+  color: var(--theme-text-main);
+  font-size: 13px;
+  transition: border-color 0.2s ease;
+}
+
+.search-container input:focus {
+  outline: none;
+  border-color: var(--theme-accent-blue);
+  background-color: #ffffff;
+}
+
+.search-container .search-btn {
+  background-color: var(--theme-accent-blue);
+  border: none;
+  padding: 0 18px;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  color: #ffffff;
+  transition: background-color 0.2s ease;
+}
+
+.search-container .search-btn:hover {
+  background-color: #02598a;
+}
+
+/* Actions Header */
+.header-actions {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+}
+
+.action-item {
+  color: var(--theme-text-main);
+  text-decoration: none;
+  font-size: 18px;
+  position: relative;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.action-item:hover {
+  transform: scale(1.1);
+  color: var(--theme-accent-blue);
+}
+
+.cart-badge {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  background-color: var(--theme-accent-red);
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Navigation Row */
+.header-nav-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  background-color: var(--theme-bg-header);
+  position: relative;
+  z-index: 100;
+  border-bottom: 2px solid var(--theme-border);
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-links > li {
+  position: relative;
+}
+
+.nav-links > li > a {
+  display: inline-block;
+  color: var(--theme-text-main);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 15px 20px;
+  transition: color 0.2s ease;
+}
+
+.nav-links > li:hover > a, 
+.nav-links > li > a.show {
+  color: var(--theme-accent-blue);
+}
+
+.nav-links .arrow {
+  font-size: 8px;
+  margin-left: 4px;
+  color: var(--theme-text-muted);
+  transition: transform 0.2s ease;
+}
+
+.nav-links > li:hover .arrow {
+  transform: rotate(180deg);
+  color: var(--theme-accent-red);
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 220px;
+  background-color: var(--theme-bg-card);
+  border: 1px solid var(--theme-border);
+  border-top: 3px solid var(--theme-accent-blue);
+  list-style: none;
+  padding: 8px 0;
+  margin: 0;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  border-radius: 0 0 8px 8px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+
+.dropdown-menu.show {
+    display: block;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+/* .dropdown:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+} */
+
+.dropdown-menu li a {
+  display: block;
+  padding: 10px 20px;
+  color: var(--theme-text-muted);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.dropdown-menu li a:hover {
+  background-color: var(--theme-bg-main);
+  color: var(--theme-accent-blue);
+  padding-left: 24px;
+}
+
+/* Header CTA Button */
+.nav-cta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cta-label {
+  font-size: 11px;
+  color: var(--theme-text-muted);
+  font-weight: bold;
+}
+
+.cta-button {
+  background-color: var(--theme-accent-blue);
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cta-button:hover {
+  background-color: #02598a;
+  box-shadow: 0 4px 6px rgba(2, 106, 167, 0.2);
+}
+
+/* ==========================================================================
+   5. HERO CAROUSEL
+   ========================================================================== */
+.hero-carousel-wrapper {
+  height: 75vh;
+  min-height: 550px;
+  background-color: var(--theme-bg-main);
+}
+
+/* Container anchored at the bottom center of the hero section */
+.hero-bottom-controls {
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 200px;              /* Space between arrows and the progress bars */
+  z-index: 10;
+}
+
+/* Styling for the bottom control arrow buttons */
+.hero-control-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: #ffffff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.hero-control-btn:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Indicators layout adjustment */
+.hero-indicators {
+  display: flex;
+  gap: 8px;
+}
+
+.hero-bar-segment {
+  width: 40px;           
+  height: 4px;           
+  background: rgba(255, 255, 255, 0.3); 
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.hero-bar-fill {
+  width: 0%;
+  height: 100%;
+  background: #ffffff;   
+  transition: width 0.1s linear;
+}
+
+.hero-indicators {
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;              /* Space between individual bars */
+  z-index: 10;
+}
+
+.hero-bar-segment {
+  width: 40px;           /* Width of each individual bar */
+  height: 4px;           /* Thickness of the bars */
+  background: rgba(255, 255, 255, 0.3); /* Unfilled / future tile background */
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.hero-bar-fill {
+  width: 0%;
+  height: 100%;
+  background: #ffffff;   /* Active fill color */
+  transition: width 0.1s linear;
+}
+
+.carousel-control-prev>span, .carousel-control-next>span {
+  /* border: 1px solid #ffffff; */
+  border-radius: 50%;
+}
+
+.carousel, .carousel-inner, .carousel-item {
+  height: 100%;
+}
+
+.hero-slide-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+}
+
+/* Assuming hero text sits over an image, we keep it white for contrast */
+.sub-heading-badge {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: #60a5fa; /* Kept light blue for dark image overlay */
+}
+
+.main-hero-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: calc(2.5rem + 3.5vw);
+  line-height: 0.95;
+  letter-spacing: -0.5px;
+  color: #ffffff; 
+  text-shadow: 0 2px 10px rgba(0,0,0,0.5); /* Added shadow for readability */
+}
+
+/* Carousel Buttons */
+.btn-action-red {
+  background-color: var(--theme-accent-blue);
+  color: #ffffff;
+  border: none;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  letter-spacing: 1px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-action-red:hover {
+  background-color: #02598a;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.btn-action-outline {
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  background-color: rgba(0,0,0,0.3);
+  color: #ffffff;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  letter-spacing: 1px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.btn-action-outline:hover {
+  background-color: #ffffff;
+  color: var(--theme-text-main);
+  transform: translateY(-2px);
+}
+
+/* Custom Counter Indicator */
+.carousel-numeric-indicator {
+  position: absolute;
+  bottom: 40px;
+  right: 60px;
+  z-index: 15;
+  font-family: 'Barlow Condensed', sans-serif;
+  user-select: none;
+  color: #ffffff;
+}
+
+.carousel-numeric-indicator .current-num {
+  font-size: 38px;
+  font-weight: 800;
+  color: #60a5fa !important;
+  line-height: 1;
+}
+
+.carousel-numeric-indicator .indicator-divider {
+  width: 40px;
+  height: 2px;
+  background-color: rgba(255, 255, 255, 0.5);
+  display: inline-block;
+}
+
+.carousel-numeric-indicator .total-num {
+  font-size: 18px;
+  font-weight: 700;
+  vertical-align: bottom;
+  margin-bottom: 4px;
+}
+
+/* ==========================================================================
+   6. TICKER MARQUEE BANNERS
+   ========================================================================== */
+.ticker-ribbon {
+  background-color: var(--theme-text-main); /* Dark charcoal ribbon looks premium */
+  color: #ffffff;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 1.5px;
+  border-top: 1px solid var(--theme-border);
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+}
+
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: scrollMarquee 20s linear infinite;
+}
+
+.ticker-group {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0; 
+}
+
+.ticker-group span {
+  padding: 0 35px; 
+  white-space: nowrap;
+}
+
+@keyframes scrollMarquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ==========================================================================
+   7. ADVENTURE BANNER & CONSULTATION
+   ========================================================================== */
+.adventure-banner {
+  position: relative;
+  min-height: 380px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.adventure-bg-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center right;
+  z-index: -1;
+}
+
+.adventure-content {
+  position: relative;
+  z-index: 2;
+  color: #ffffff; /* Assuming background is a dark photo */
+}
+
+.main-banner-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  line-height: 0.95;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+}
+
+.btn-trip-ready {
+  background-color: #ffffff;
+  color: var(--theme-text-main);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  border: 2px solid #ffffff;
+  padding: 10px 20px;
+}
+
+.btn-trip-ready:hover {
+  background-color: var(--theme-accent-blue);
+  color: #ffffff;
+  border-color: var(--theme-accent-blue);
+}
+
+.btn-trip-ready:hover .arrow-icon {
+  display: inline-block;
+  transform: translateX(4px);
+  transition: transform 0.2s ease;
+}
+
+/* Lower Consultation Strip */
+.consultation-strip {
+  background-color: var(--theme-bg-card);
+  border-top: 1px solid var(--theme-border);
+  border-bottom: 1px solid var(--theme-border);
+  color: var(--theme-text-main);
+}
+
+.strip-main-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.btn-call-ankur {
+  background-color: var(--theme-accent-blue);
+  color: #ffffff;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+  border-radius: 4px;
+  border: none;
+  padding: 10px 24px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-call-ankur:hover {
+  background-color: #02598a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(2, 106, 167, 0.2);
+}
+
+/* ==========================================================================
+   8. LONG HAUL & BIKE MATRIX GRID
+   ========================================================================== */
+.main-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  line-height: 0.95;
+  letter-spacing: -0.5px;
+  color: var(--theme-text-main);
+}
+
+.btn-explore {
+  background-color: var(--theme-text-main);
+  color: #ffffff;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+  border-radius: 4px;
+  border: 2px solid var(--theme-text-main);
+  transition: all 0.3s ease;
+}
+
+.btn-explore:hover {
+  background-color: transparent;
+  color: var(--theme-text-main);
+}
+
+.btn-outline-boxes {
+  border: 1px solid var(--theme-border);
+  background-color: var(--theme-bg-card);
+  color: var(--theme-text-main);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.btn-outline-boxes:hover {
+  border-color: var(--theme-accent-blue);
+  background-color: var(--theme-accent-blue);
+  color: #ffffff;
+  box-shadow: 0 4px 8px rgba(2, 106, 167, 0.2);
+}
+
+.spec-badge {
+  background-color: var(--theme-bg-main);
+  color: var(--theme-text-main);
+  border: 1px solid var(--theme-border);
+  border-radius: 4px;
+}
+
+.fitment-card {
+  height: 220px;
+  cursor: pointer;
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.fitment-card img {
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+  z-index: 1;
+}
+
+/* Gradient updated to let the image show brightly, fading to dark at the bottom for text */
+.card-image-tint {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(0deg, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0) 50%);
+  z-index: 2;
+  transition: background 0.3s ease;
+}
+
+.card-overlay-text {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 3;
+  color: #ffffff;
+}
+
+.fitment-card:hover img {
+  transform: scale(1.08);
+}
+
+.fitment-card:hover .card-image-tint {
+  background: linear-gradient(0deg, rgba(2, 106, 167, 0.9) 0%, rgba(2, 106, 167, 0.2) 60%);
+}
+
+/* ==========================================================================
+   9. PROTECTION SECTION
+   ========================================================================== */
+.main-card-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  line-height: 0.95;
+  letter-spacing: -0.5px;
+}
+
+.protection-main-card {
+  min-height: 480px;
+  position: relative;
+  z-index: 1;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.protection-main-card .card-bg-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  z-index: -1;
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.btn-shop-protection {
+  background-color: var(--theme-accent-blue);
+  color: #ffffff;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+  border-radius: 4px;
+  border: none;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-shop-protection:hover {
+  background-color: #02598a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(2, 106, 167, 0.2);
+}
+
+.btn-shop-protection:hover .arrow-icon {
+  display: inline-block;
+  transform: translateX(4px);
+  transition: transform 0.2s ease;
+}
+
+.protection-mini-card {
+  min-height: 228px;
+  position: relative;
+  display: block;
+  z-index: 1;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.protection-mini-card img {
+  z-index: -1;
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.mini-image-tint {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(0deg, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0) 60%);
+  z-index: 2;
+  transition: background 0.3s ease;
+}
+
+.mini-card-text {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 3;
+  color: #ffffff;
+}
+
+.protection-main-card:hover .card-bg-img {
+  transform: scale(1.04);
+}
+.protection-mini-card:hover img {
+  transform: scale(1.06);
+}
+.protection-mini-card:hover .mini-image-tint {
+  background: linear-gradient(0deg, rgba(2, 106, 167, 0.9) 0%, rgba(2, 106, 167, 0.2) 70%);
+}
+
+/* ==========================================================================
+   10. OFFERS SECTION & VOUCHER CARDS
+   ========================================================================== */
+.offer-card {
+  min-height: 280px;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease;
+}
+
+.card-main-title {
+  line-height: 0.95;
+  letter-spacing: -0.5px;
+}
+
+.card-variant-red { background-color: var(--theme-accent-blue); color: #ffffff; }
+.card-variant-red .coupon-code-strip {
+  border: 2px dashed rgba(255, 255, 255, 0.4);
+  background-color: rgba(0, 0, 0, 0.1);
+  color: #ffffff;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+}
+
+.card-variant-red .coupon-code-strip:hover {
+  background-color: #ffffff;
+  color: var(--theme-accent-blue);
+  border-color: #ffffff;
+}
+
+.card-variant-yellow { background-color: var(--theme-accent-red); color: #ffffff; }
+.card-variant-yellow .coupon-code-strip {
+  border: 2px dashed rgba(255, 255, 255, 0.4);
+  background-color: rgba(0, 0, 0, 0.1);
+  color: #ffffff;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+}
+
+.card-variant-yellow .coupon-code-strip:hover {
+  background-color: #ffffff;
+  color: var(--theme-accent-red);
+  border-color: #ffffff;
+}
+
+.offer-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 24px -8px rgba(0, 0, 0, 0.15);
+}
+
+.offer-card:hover .icon-flash {
+  display: inline-block;
+  animation: flashBounce 0.4s ease-in-out;
+}
+
+@keyframes flashBounce {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3) rotate(-10deg); }
+  100% { transform: scale(1); }
+}
+
+/* ==========================================================================
+   11. BRAND TICKER SCROLL ENGINE
+   ========================================================================== */
+.brand-ticker-container {
+  overflow: hidden;
+  display: flex;
+  background-color: var(--theme-bg-main);
+  padding: 20px 0;
+}
+
+.brand-ticker-track {
+  display: flex;
+  width: max-content;
+  animation: brandMarqueeScroll 25s linear infinite;
+}
+
+.brand-ticker-track:hover { 
+  animation-play-state: paused; 
+}
+
+.brand-card-item {
+  flex: 0 0 240px;
+  padding: 0 8px;
+}
+
+.brand-card-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--theme-bg-card);
+  border: 1px solid var(--theme-border);
+  border-radius: 8px;
+  min-height: 110px;
+  width: 100%;
+  cursor: pointer;
+  padding: 15px;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Brand Logo Image Settings */
+.brand-logo-img {
+  max-height: 70px;
+  max-width: 80%;
+  width: auto;
+  object-fit: contain;
+  /* filter: grayscale(100%); */
+  /* opacity: 0.7; */
+  transition: all 0.3s ease;
+}
+
+/* Hover Effects */
+.brand-card-inner:hover {
+  border-color: var(--theme-accent-blue);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+  transform: translateY(-4px);
+}
+
+.brand-card-inner:hover .brand-logo-img {
+  filter: grayscale(0%);
+  opacity: 1;
+}
+
+@keyframes brandMarqueeScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ==========================================================================
+   12. FOOTER COMPONENTS
+   ========================================================================== */
+.main-site-footer {
+  background-color: #ffffff; /* Crisp white footer for light theme */
+  border-top: 1px solid var(--theme-border);
+  color: var(--theme-text-main);
+}
+
+.prop-tile {
+  background-color: var(--theme-bg-main); 
+  border: 1px solid var(--theme-border);
+  border-radius: 8px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.prop-tile:hover {
+  border-color: var(--theme-accent-blue) !important; 
+  box-shadow: 0 4px 12px rgba(2, 106, 167, 0.08);
+}
+
+.newsletter-strip {
+  background: var(--theme-bg-main);
+  border-top: 1px solid var(--theme-border);
+  border-bottom: 1px solid var(--theme-border);
+}
+
+.newsletter-form .form-control {
+  border: 1px solid var(--theme-border);
+  background-color: #ffffff !important;
+  color: var(--theme-text-main);
+  font-size: 14px;
+  border-radius: 4px 0 0 4px;
+}
+
+.newsletter-form .form-control:focus {
+  outline: none;
+  box-shadow: none;
+  border-color: var(--theme-accent-blue); 
+}
+
+.btn-subscribe {
+  background-color: var(--theme-accent-blue);
+  color: #ffffff;
+  border: none;
+  font-size: 14px;
+  letter-spacing: 1px;
+  border-radius: 0 4px 4px 0;
+  transition: background-color 0.2s ease;
+}
+
+.newsletter-form .btn-subscribe:hover {
+  background-color: #02598a;
+  color: #ffffff;
+}
+
+.brand-wrapper-box { line-height: 1; }
+
+.brand-logo-badge {
+  width: 32px;
+  height: 32px;
+  background-color: var(--theme-accent-blue);
+  color: #ffffff;
+  border-radius: 4px;
+  font-weight: 900;
+  font-size: 16px;
+}
+
+.footer-links-list a {
+  color: var(--theme-text-muted);
+  transition: color 0.2s ease, transform 0.2s ease;
+  display: inline-block;
+}
+
+.footer-links-list a:hover {
+  color: var(--theme-accent-blue) !important; 
+  transform: translateX(3px); 
+}
+
+/* ==========================================================================
+   MOBILE HAMBURGER & RESPONSIVE NAV STYLES
+   ========================================================================== */
+
+/* Hide hamburger by default on desktop */
+.mobile-menu-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 40px;
+  height: 35px;
+}
+
+.hamburger-bar {
+  display: block;
+  width: 100%;
+  height: 3px;
+  background-color: var(--theme-text-main);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+/* ==========================================================================
+   13. MEDIA QUERIES
+   ========================================================================== */
+@media (max-width: 768px) {
+  .top-bar-left, .top-bar-right { display: none; }
+  .top-utility-bar { justify-content: center; padding: 8px 10px; }
+}
+
+@media (max-width: 992px) {
+  .header-main-row { padding: 15px 20px; }
+  .hero-carousel-wrapper{ height: 60vh; min-height: 400px; }
+  .main-hero-title { font-size: calc(2rem + 2vw); }
+  /* .carousel-item>.container>.row {margin-right: calc(var(--bs-gutter-x) * 1.75); margin-left: calc(var(--bs-gutter-x) * 1.75);} */
+}
+
+/* Tablet & Mobile Breakpoint */
+@media (max-width: 991px) {
+  .mobile-menu-toggle {
+    display: flex; /* Show hamburger on screens < 992px */
+  }
+
+  .header-nav-row {
+    position: relative;
+    padding: 12px 20px;
+    justify-content: space-between;
+  }
+
+  /* Transform the nav links into an absolute dropdown drawer */
+  .nav-container {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: var(--theme-bg-header);
+    border-bottom: 1px solid var(--theme-border);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    
+    /* Hidden by default */
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  /* When JS adds the 'active' class, expand the drawer */
+  .nav-container.active {
+    max-height: 450px; 
+  }
+
+  .nav-links {
+    flex-direction: column;
+    padding: 10px 0;
+  }
+
+  .nav-links > li > a {
+    padding: 12px 24px;
+    display: block;
+    border-bottom: 1px solid var(--theme-border);
+  }
+
+  /* Override desktop hover dropdowns for touch compatibility */
+  .dropdown-menu {
+    position: static;
+    box-shadow: none;
+    border: none;
+    background-color: var(--theme-bg-main);
+    padding-left: 15px;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    display: none; /* Can be expanded further with JS if desired */
+  }
+  
+  .dropdown.open .dropdown-menu {
+    display: block;
+  }
+}
