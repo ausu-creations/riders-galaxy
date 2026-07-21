@@ -16,7 +16,7 @@ export default function PerformanceGrid() {
             <h2 className="display-6 fw-black text-black text-uppercase m-0 header-title">Performance Parts<span className="title-dot"></span></h2>
           </div>
           <div>
-            <a href="#" className="view-all-link text-uppercase fw-bold text-decoration-none text-black fs-7 font-barlow">View All <span className="arrow-shift">&rarr;</span></a>
+            <a href="/shop" className="view-all-link text-uppercase fw-bold text-decoration-none text-black fs-7 font-barlow">View All <span className="arrow-shift">&rarr;</span></a>
           </div>
         </div>
 

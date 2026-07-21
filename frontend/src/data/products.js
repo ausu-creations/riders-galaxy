@@ -21,6 +21,7 @@ const products = [
     description: "Lightweight full-face helmet with advanced ventilation and removable liner.",
     sizes: ["S", "M", "L", "XL"],
     colors: ["Matte Black", "White", "Red"],
+    tripReady: true,
   },
   {
     id: 2,
@@ -33,6 +34,7 @@ const products = [
     description: "Abrasion-resistant textile jacket with CE-rated armor and waterproof liner.",
     sizes: ["M", "L", "XL", "XXL"],
     colors: ["Black", "Gray"],
+    tripReady: true,
   },
   {
     id: 3,
@@ -45,6 +47,7 @@ const products = [
     description: "Comfort-fit gloves with reinforced palms and touchscreen capability.",
     sizes: ["S", "M", "L"],
     colors: ["Black", "Brown"],
+    tripReady: true,
   },
   {
     id: 4,
@@ -57,6 +60,7 @@ const products = [
     description: "Durable touring pants with stretch panels and waterproofing.",
     sizes: ["M", "L", "XL"],
     colors: ["Black"],
+    tripReady: true,
   },
   {
     id: 5,
@@ -69,6 +73,7 @@ const products = [
     description: "High-traction boots with ankle protection and waterproof membrane.",
     sizes: ["8", "9", "10", "11"],
     colors: ["Brown", "Black"],
+    tripReady: true,
   },
   {
     id: 6,
@@ -81,6 +86,7 @@ const products = [
     description: "Helmet-fit Bluetooth intercom with 1km range and noise cancellation.",
     sizes: [],
     colors: ["Black"],
+    tripReady: true,
   },
   {
     id: 7,

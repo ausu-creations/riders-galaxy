@@ -52,7 +52,7 @@ export default function Header() {
         {/* Right Actions */}
         <div className="header-actions">
           <div className="nav-right-cta d-none d-lg-block">
-            <a href="#" className="cta-button">
+            <a href="/shop" className="cta-button">
               NEED HELP?
             </a>
           </div>
@@ -61,7 +61,7 @@ export default function Header() {
             ❤️
           </Link>
 
-          <a href="#" className="action-item" title="Profile">
+          <a href="/shop" className="action-item" title="Profile">
             👤
           </a>
 
@@ -91,7 +91,7 @@ export default function Header() {
             <li className="nav-item dropdown">
               <a
                 className="nav-link dropdown-toggle"
-                href="#"
+                href="/shop?category=riding%20jackets&q=Riding%20Jackets"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               >
@@ -100,25 +100,25 @@ export default function Header() {
 
               <ul className="dropdown-menu">
                 <li>
-                  <a className="dropdown-item" href="#">
+                  <a className="dropdown-item" href="/shop?category=riding%20jackets&q=Riding%20Jackets">
                     Riding/Touring Jackets
                   </a>
                 </li>
 
                 <li>
-                  <a className="dropdown-item" href="#">
+                  <a className="dropdown-item" href="/shop?category=riding%20pants&q=Riding%20Pants">
                     Riding/Touring Pants
                   </a>
                 </li>
 
                 <li>
-                  <a className="dropdown-item" href="#">
+                  <a className="dropdown-item" href="/shop?category=riding%20gloves&q=Riding%20Gloves">
                     Riding/Touring Gloves
                   </a>
                 </li>
 
                 <li>
-                  <a className="dropdown-item" href="#">
+                  <a className="dropdown-item" href="/shop?category=riding%20boots&q=Riding%20Boots">
                     Riding/Touring Boots
                   </a>
                 </li>
@@ -126,19 +126,19 @@ export default function Header() {
             </li>
 
             <li>
-              <a href="#">Helmets</a>
+              <a href="/shop?category=helmets&q=Helmets">Helmets</a>
             </li>
 
             <li>
-              <a href="#">Performance Parts</a>
+              <a href="/shop?category=exhausts&q=Exhausts">Performance Parts</a>
             </li>
 
             <li>
-              <a href="#">Bike Accessories</a>
+              <a href="/shop?category=luggage-systems&q=Luggage%20Systems">Bike Accessories</a>
             </li>
 
             <li>
-              <a href="#">Brands</a>
+              <a href="/shop">Brands</a>
             </li>
           </ul>
         </nav>

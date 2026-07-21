@@ -40,33 +40,33 @@ export default function Footer() {
 					<div className="col-lg-2 col-md-4 col-6">
 						<h4 className="text-white text-uppercase font-barlow fw-black tracking-wide fs-6 mb-3">Shop</h4>
 						<ul className="list-unstyled footer-links-list d-flex flex-column gap-2 fs-6">
-							<li><a href="#" className="text-decoration-none text-muted">Helmets</a></li>
-							<li><a href="#" className="text-decoration-none text-muted">Riding Gear</a></li>
-							<li><a href="#" className="text-decoration-none text-muted">Luggage Systems</a></li>
-							<li><a href="#" className="text-decoration-none text-muted">Bike Protection</a></li>
-							<li><a href="#" className="text-decoration-none text-muted">Performance Parts</a></li>
+							<li><a href="/shop?category=helmets&q=Helmets" className="text-decoration-none text-muted">Helmets</a></li>
+							<li><a href="/shop?category=riding%20jackets&q=Riding%20Jackets" className="text-decoration-none text-muted">Riding Gear</a></li>
+							<li><a href="/shop?category=luggage-systems&q=Luggage%20Systems" className="text-decoration-none text-muted">Luggage Systems</a></li>
+							<li><a href="/shop?category=crash-gaurds&q=Crash%20Gaurds" className="text-decoration-none text-muted">Bike Protection</a></li>
+							<li><a href="/shop?category=exhausts&q=Exhausts" className="text-decoration-none text-muted">Performance Parts</a></li>
 						</ul>
 					</div>
 
 					<div className="col-lg-3 col-md-4 col-6">
 						<h4 className="text-white text-uppercase font-barlow fw-black tracking-wide fs-6 mb-3">Support</h4>
 						<ul className="list-unstyled footer-links-list d-flex flex-column gap-2 fs-6">
-							<li><a href="#" className="text-decoration-none text-muted">Track Order</a></li>
-							<li><a href="#" className="text-decoration-none text-muted">Contact Us</a></li>
-							<li><a href="#" className="text-decoration-none text-muted">Shipping Policy</a></li>
-							<li><a href="#" className="text-decoration-none text-muted">Returns & Refunds</a></li>
-							<li><a href="#" className="text-decoration-none text-muted">FAQs</a></li>
+							<li><a href="/shop" className="text-decoration-none text-muted">Track Order</a></li>
+							<li><a href="/shop" className="text-decoration-none text-muted">Contact Us</a></li>
+							<li><a href="/shop" className="text-decoration-none text-muted">Shipping Policy</a></li>
+							<li><a href="/shop" className="text-decoration-none text-muted">Returns & Refunds</a></li>
+							<li><a href="/shop" className="text-decoration-none text-muted">FAQs</a></li>
 						</ul>
 					</div>
 
 					<div className="col-lg-3 col-md-4 col-12">
 						<h4 className="text-white text-uppercase font-barlow fw-black tracking-wide fs-6 mb-3">Company</h4>
 						<ul className="list-unstyled footer-links-list d-flex flex-column gap-2 fs-6">
-							<li><a href="#" className="text-decoration-none text-muted">About Us</a></li>
-							<li><a href="#" className="text-decoration-none text-muted">Store Locator</a></li>
-							<li><a href="#" className="text-decoration-none text-muted">Blogs & Stories</a></li>
-							<li><a href="#" className="text-decoration-none text-muted">Careers</a></li>
-							<li><a href="#" className="text-decoration-none text-muted">Terms of Service</a></li>
+							<li><a href="/shop" className="text-decoration-none text-muted">About Us</a></li>
+							<li><a href="/shop" className="text-decoration-none text-muted">Store Locator</a></li>
+							<li><a href="/shop" className="text-decoration-none text-muted">Blogs & Stories</a></li>
+							<li><a href="/shop" className="text-decoration-none text-muted">Careers</a></li>
+							<li><a href="/shop" className="text-decoration-none text-muted">Terms of Service</a></li>
 						</ul>
 					</div>
 				</div>

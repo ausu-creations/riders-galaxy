@@ -26,7 +26,7 @@ export default function AdventureBanner() {
             <p className="lead text-secondary-white mb-4 fs-6 fw-normal lh-base">
               Complete gear checklists, altitude-tested essentials, and expert advice for your next high-altitude adventure.
             </p>
-            <a href="#" className="btn btn-trip-ready px-4 py-3 text-uppercase fw-bold text-decoration-none">
+            <a href="/trip-ready" className="btn btn-trip-ready px-4 py-3 text-uppercase fw-bold text-decoration-none">
               Trip Ready Gear <span className="arrow-icon ms-1">→</span>
             </a>
           </div>
