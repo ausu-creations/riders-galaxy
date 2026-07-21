@@ -1,70 +1,65 @@
 const express = require('express');
 const router = express.Router();
-const Category = require('../models/Category');
-const Product = require('../models/Product');
+const Product = require('../models/Product');  // Adjust path if needed
+const Category = require('../models/Category'); // Adjust path if needed
 
-// --- CATEGORY ROUTES ---
-
-// Get all categories
-router.get('/categories', async (req, res) => {
+// GET /api/products - Fetch products with optional filtering, search, and sorting
+router.get('/', async (req, res) => {
   try {
-    const categories = await Category.find();
-    res.json(categories);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+    const { category, brand, minPrice, maxPrice, fitment, search, sort } = req.query;
+    let query = {};
 
-// Create a category (for seeding/admin)
-router.post('/categories', async (req, res) => {
-  try {
-    const newCategory = new Category(req.body);
-    const savedCategory = await newCategory.save();
-    res.status(201).json(savedCategory);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
+    // 1. Filter by Price Range
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = Number(minPrice);
+      if (maxPrice) query.price.$lte = Number(maxPrice);
+    }
 
+    // 2. Filter by Brand (supports single or comma-separated brands e.g. "LS2,Rynox")
+    if (brand) {
+      const brandList = brand.split(',').map(b => b.trim());
+      query.brand = { $in: brandList.map(b => new RegExp(`^${b}$`, 'i')) };
+    }
 
-// --- PRODUCT ROUTES ---
+    // 3. Filter by Fitment (case-insensitive search e.g. "Universal")
+    if (fitment) {
+      query.fitment = new RegExp(fitment, 'i');
+    }
 
-// Get all products (with optional filters for category, brand, or fitment)
-router.get('/products', async (req, res) => {
-  try {
-    const { category, brand, fitment } = req.query;
-    let filter = {};
+    // 4. Keyword Search across Title, Brand, and Description
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { brand: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
+      ];
+    }
 
-    if (category) filter.category = category;
-    if (brand) filter.brand = brand;
-    if (fitment) filter.fitment = fitment;
+    // 5. Filter by Category Slug(s)
+    if (category) {
+      const catSlugs = category.split(',').map(c => c.trim());
+      // Find category ObjectIds corresponding to the provided slug(s)
+      const matchedCategories = await Category.find({ slug: { $in: catSlugs } });
+      const categoryIds = matchedCategories.map(c => c._id);
+      query.category = { $in: categoryIds };
+    }
 
-    const products = await Product.find(filter).populate('category');
+    // 6. Handle Sorting Options
+    let sortOption = { createdAt: -1 }; // Default: Newest first
+    if (sort === 'price-asc') sortOption = { price: 1 };
+    if (sort === 'price-desc') sortOption = { price: -1 };
+    if (sort === 'title-asc') sortOption = { title: 1 };
+
+    // Execute query and populate category details
+    const products = await Product.find(query)
+      .populate('category')
+      .sort(sortOption);
+
     res.json(products);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Get a single product by slug
-router.get('/products/:slug', async (req, res) => {
-  try {
-    const product = await Product.findOne({ slug: req.params.slug }).populate('category');
-    if (!product) return res.status(404).json({ message: 'Product not found' });
-    res.json(product);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Create a product (for seeding/inventory management)
-router.post('/products', async (req, res) => {
-  try {
-    const newProduct = new Product(req.body);
-    const savedProduct = await newProduct.save();
-    res.status(201).json(savedProduct);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.status(500).json({ error: 'Failed to fetch products' });
   }
 });
 

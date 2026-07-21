@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Rider's Galaxy - Shop Catalog</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body>
+
+  <!-- Navigation Bar (Same as index.html) -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">...</nav>
+
+  <main class="container py-5">
+    <div class="row">
+
+      <!-- ================= SIDEBAR FILTERS ================= -->
+      <aside class="col-lg-3 mb-4">
+        <div class="p-4 border rounded bg-white shadow-sm">
+          <h5 class="fw-bold mb-3">Filters</h5>
+          <button class="btn btn-sm btn-outline-secondary w-100 mb-3" id="reset-filters-btn">Reset All Filters</button>
+
+          <!-- Category Filter -->
+          <div class="mb-4">
+            <h6 class="fw-semibold">Category</h6>
+            <div id="category-filter-group">
+              <!-- Dynamically populated or static checkboxes -->
+            </div>
+          </div>
+
+          <!-- Fitment Filter -->
+          <div class="mb-4">
+            <h6 class="fw-semibold">Bike Fitment</h6>
+            <select id="filter-make" class="form-select form-select-sm mb-2">
+              <option value="">Select Make (e.g., Yamaha)</option>
+            </select>
+            <select id="filter-model" class="form-select form-select-sm mb-2">
+              <option value="">Select Model (e.g., R15)</option>
+            </select>
+          </div>
+
+          <!-- Price Range Filter -->
+          <div class="mb-4">
+            <h6 class="fw-semibold">Price Range</h6>
+            <div class="d-flex align-items-center gap-2">
+              <input type="number" id="min-price" class="form-control form-control-sm" placeholder="Min $">
+              <span>-</span>
+              <input type="number" id="max-price" class="form-control form-control-sm" placeholder="Max $">
+            </div>
+          </div>
+
+          <button class="btn btn-danger w-100 mt-2" id="apply-filters-btn">Apply Filters</button>
+        </div>
+      </aside>
+
+      <!-- ================= MAIN PRODUCT GRID ================= -->
+      <section class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <p class="m-0 text-muted" id="results-count">Showing all products</p>
+          <select id="sort-by" class="form-select form-select-sm w-auto">
+            <option value="newest">Sort by: Newest</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+          </select>
+        </div>
+
+        <!-- Dynamic Cards Container -->
+        <div id="shop-products-grid" class="row g-4">
+          <!-- Cards injected via JS -->
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script src="./assets/js/shop.js"></script>
+</body>
+</html>
