@@ -256,3 +256,43 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 });
+
+  // Ensure mobile toggle is attached even if this script is imported after DOMContentLoaded
+  (function attachMobileToggle() {
+    function addToggle() {
+      const btn = document.getElementById('mobileMenuBtn');
+      const nav = document.getElementById('mobileNavMenu');
+      if (btn && nav) {
+        // Avoid attaching duplicate listeners
+        if (!btn._hasMobileToggle) {
+          btn.addEventListener('click', function () {
+            nav.classList.toggle('active');
+            btn.classList.toggle('open');
+          });
+          btn._hasMobileToggle = true;
+        }
+        return true;
+      }
+      return false;
+    }
+
+    if (!addToggle()) {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', addToggle);
+      } else {
+        addToggle();
+      }
+    }
+  })();
+
+  // Fallback: delegated click handler to ensure toggle works even if direct listener wasn't attached
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest && e.target.closest('#mobileMenuBtn');
+    if (btn) {
+      const nav = document.getElementById('mobileNavMenu');
+      if (nav) {
+        nav.classList.toggle('active');
+        btn.classList.toggle('open');
+      }
+    }
+  });
