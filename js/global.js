@@ -1,32 +1,57 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+  const carouselElement = document.getElementById("heroRidersCarousel");
+  const segments = document.querySelectorAll(".hero-bar-segment");
+  const slideInterval = 5000; // Match this with your Bootstrap carousel interval if custom set (default is usually 5000ms)
+  
+  let startTime = null;
+  let animationFrameId = null;
 
-    dropdownToggles.forEach(toggle => {
-        toggle.addEventListener('click', function (e) {
-            e.preventDefault(); 
-            e.stopPropagation(); 
+  if (carouselElement && segments.length > 0) {
+    
+    // Function to run the animation on the active segment bar
+    function runProgressBar(activeIndex) {
+      cancelAnimationFrame(animationFrameId);
 
-            const currentMenu = this.nextElementSibling;
-            const isOpen = currentMenu.classList.contains('show');
+      // 1. Immediately style past bars as full (100%) and future bars as empty (0%)
+      segments.forEach((segment, index) => {
+        const fill = segment.querySelector('.hero-bar-fill');
+        if (index < activeIndex) {
+          fill.style.transition = 'width 0.3s ease';
+          fill.style.width = '100%';
+        } else if (index > activeIndex) {
+          fill.style.transition = 'none';
+          fill.style.width = '0%';
+        }
+      });
 
-            // Close any other open dropdowns
-            document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                menu.classList.remove('show');
-            });
+      // 2. Animate the current active bar fill smoothly
+      const activeFill = segments[activeIndex].querySelector('.hero-bar-fill');
+      activeFill.style.transition = 'width 0.1s linear';
+      startTime = performance.now();
 
-            // Toggle the current one
-            if (!isOpen) {
-                currentMenu.classList.add('show');
-            }
-        });
+      function animateActiveBar(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min((elapsed / slideInterval) * 100, 100);
+        
+        activeFill.style.width = progress + '%';
+        
+        if (progress < 100) {
+          animationFrameId = requestAnimationFrame(animateActiveBar);
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(animateActiveBar);
+    }
+
+    // 3. Listen to Bootstrap's native sliding event to sync progress bars instantly on manual/auto transitions
+    carouselElement.addEventListener("slide.bs.carousel", function (event) {
+      const nextIndex = event.to; // Bootstrap provides zero-indexed destination slide integer via event.to
+      runProgressBar(nextIndex);
     });
 
-    // Close the menu if the user clicks anywhere else on the page
-    window.addEventListener('click', function () {
-        document.querySelectorAll('.dropdown-menu').forEach(menu => {
-            menu.classList.remove('show');
-        });
-    });
+    // 4. Initialize progress bar on initial page load for the first active slide (index 0)
+    runProgressBar(0);
+  }
 });
 
 
@@ -214,6 +239,20 @@ document.addEventListener("DOMContentLoaded", function () {
         submitBtn.disabled = false;
         submitBtn.innerHTML = nativeLabel;
       }, 2000);
+    });
+  }
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+  const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+  const mobileNavMenu = document.getElementById("mobileNavMenu");
+
+  if (mobileMenuBtn && mobileNavMenu) {
+    mobileMenuBtn.addEventListener("click", function () {
+      mobileNavMenu.classList.toggle("active");
+      
+      // Optional: Animate hamburger bars into an 'X' shape
+      mobileMenuBtn.classList.toggle("open");
     });
   }
 });
