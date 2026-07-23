@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   deploy:
+    if: false  # Disabled - using gh-pages package instead
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
