@@ -30,8 +30,10 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
+      console.log('Attempting login with:', email);
       const response = await api.post('/auth/login', { email, password });
-      const { token, user: userData } = response.data;
+      console.log('Login response:', response);
+      const { token, user: userData } = response; // Not response.data (interceptor already returns data)
       
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(userData));
@@ -39,9 +41,11 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       setIsAdmin(userData.role === 'admin');
       
+      console.log('Login successful for:', userData.email);
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);
+      console.error('Error response:', error.response?.data);
       return { success: false, error: error.response?.data?.error || 'Login failed' };
     }
   };
@@ -49,7 +53,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const response = await api.post('/auth/register', userData);
-      const { token, user: newUser } = response.data;
+      const { token, user: newUser } = response; // Not response.data (interceptor already returns data)
       
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(newUser));
@@ -74,7 +78,7 @@ export const AuthProvider = ({ children }) => {
   const updateProfile = async (profileData) => {
     try {
       const response = await api.put('/auth/profile', profileData);
-      const updatedUser = response.data.user;
+      const updatedUser = response.user; // Not response.data.user (interceptor already returns data)
       
       localStorage.setItem('user', JSON.stringify(updatedUser));
       setUser(updatedUser);
