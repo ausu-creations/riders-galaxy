@@ -3,13 +3,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import Header from "../components/layout/Navbar";
 import Footer from "../components/layout/footer";
 import AutoImageCarousel from "../components/common/AutoImageCarousel";
-import productsData from "../data/products";
+import { useProducts } from "../context/ProductContext";
 import { useCart } from "../context/CartContext";
 
 export default function ProductPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const product = productsData.find((p) => String(p.id) === String(id));
+  const { getProduct } = useProducts();
+  const product = getProduct(id);
   const { addItem, openCart } = useCart();
   const [selectedSize, setSelectedSize] = useState(product?.sizes?.[0] || "");
   const [selectedColor, setSelectedColor] = useState(product?.colors?.[0] || "");
@@ -43,7 +44,7 @@ export default function ProductPage() {
           <div className="col-md-6">
             <h2 className="fw-black text-uppercase">{product.title}</h2>
             <p className="text-muted">{product.brand}</p>
-            <h3 className="text-primary">${product.price.toFixed(2)}</h3>
+            <h3 className="text-primary">₹{product.price.toFixed(2)}</h3>
             <p className="lead">{product.description}</p>
 
             {product.sizes?.length > 0 && (
@@ -81,7 +82,7 @@ export default function ProductPage() {
               <button
                 className="btn btn-primary"
                 onClick={() => {
-                  addItem(product, qty);
+                  addItem({ ...product, selectedSize, selectedColor }, qty);
                   openCart();
                 }}
               >

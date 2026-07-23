@@ -10,11 +10,17 @@ import "./assets/js/global.js";
 
 import App from "./App";
 import { CartProvider } from "./context/CartContext";
+import { ProductProvider } from "./context/ProductContext";
+import { AuthProvider } from "./context/AuthContext";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <HashRouter>
-    <CartProvider>
-      <App />
-    </CartProvider>
+    <AuthProvider>
+      <ProductProvider>
+        <CartProvider>
+          <App />
+        </CartProvider>
+      </ProductProvider>
+    </AuthProvider>
   </HashRouter>
 );

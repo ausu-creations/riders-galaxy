@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/layout/Navbar";
 import Footer from "../components/layout/footer";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
+import api from "../utils/api";
 
 const STATE_FALLBACK = [
   "Andhra Pradesh",
@@ -38,11 +40,12 @@ const CITY_FALLBACK = {
 
 export default function Checkout() {
   const { cartItems, total, clearCart } = useCart();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    email: "",
-    fullName: "",
-    phone: "",
+    email: user?.email || "",
+    fullName: user?.name || "",
+    phone: user?.phone || "",
     address: "",
     postal: "",
     state: "",
@@ -57,6 +60,8 @@ export default function Checkout() {
   const [loadingCities, setLoadingCities] = useState(false);
   const [fetchError, setFetchError] = useState("");
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [processingPayment, setProcessingPayment] = useState(false);
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
 
   useEffect(() => {
     async function loadStates() {
@@ -80,6 +85,18 @@ export default function Checkout() {
     }
 
     loadStates().finally(() => setLoadingStates(false));
+  }, []);
+
+  // Load Razorpay script
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    script.onload = () => setRazorpayLoaded(true);
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
   }, []);
 
   useEffect(() => {
@@ -129,9 +146,163 @@ export default function Checkout() {
   function submitOrder(event) {
     event.preventDefault();
     if (cartItems.length === 0) return;
-    setOrderPlaced(true);
-    clearCart();
+
+    const orderData = {
+      items: cartItems.map(item => ({
+        productId: item.id,
+        title: item.title,
+        price: item.price,
+        quantity: item.quantity,
+        size: item.selectedSize,
+        color: item.selectedColor,
+        image: item.image,
+      })),
+      shippingAddress: {
+        name: form.fullName,
+        phone: form.phone,
+        street: form.address,
+        city: form.city,
+        state: form.state,
+        zipCode: form.postal,
+        country: 'India',
+      },
+      subtotal: total,
+      shippingCost: form.delivery === "express" ? 199 : 0,
+      total: total + (form.delivery === "express" ? 199 : 0),
+      notes: form.company ? `Company: ${form.company}` : '',
+      paymentDetails: {
+        method: form.payment,
+        amount: total + (form.delivery === "express" ? 199 : 0),
+        currency: 'INR',
+        status: 'pending',
+      },
+    };
+
+    if (form.payment === "online") {
+      handleRazorpayPayment(orderData);
+    } else {
+      handleCodOrder(orderData);
+    }
   }
+
+  const handleRazorpayPayment = async (orderData) => {
+    try {
+      setProcessingPayment(true);
+      
+      // Get Razorpay key and create order
+      const [keyResponse, paymentResponse] = await Promise.all([
+        api.get('/payment/key'),
+        api.post('/payment/create-order', { 
+          amount: total + (form.delivery === "express" ? 199 : 0),
+          currency: 'INR'
+        })
+      ]);
+
+      const amount = total + (form.delivery === "express" ? 199 : 0);
+
+      const options = {
+        key: keyResponse.key,
+        amount: paymentResponse.amount,
+        currency: paymentResponse.currency,
+        name: 'Riders Galaxy',
+        description: 'Order Payment',
+        order_id: paymentResponse.orderId,
+        handler: async function (response) {
+          // Verify payment on backend
+          const verifyResponse = await api.post('/payment/verify', {
+            razorpayOrderId: response.razorpay_order_id,
+            razorpayPaymentId: response.razorpay_payment_id,
+            razorpaySignature: response.razorpay_signature,
+          });
+
+          if (verifyResponse.status === 'success') {
+            // Create order with payment details
+            const finalOrderData = {
+              ...orderData,
+              paymentDetails: {
+                ...orderData.paymentDetails,
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+                status: 'completed',
+              },
+            };
+
+            // If user is not authenticated, create order without userId
+            if (!user) {
+              const guestOrderData = {
+                ...finalOrderData,
+                guestInfo: {
+                  name: form.fullName,
+                  email: form.email,
+                  phone: form.phone,
+                },
+              };
+              await api.post('/orders/guest', guestOrderData);
+            } else {
+              await api.post('/orders', finalOrderData);
+            }
+
+            setOrderPlaced(true);
+            clearCart();
+          }
+        },
+        prefill: {
+          name: form.fullName,
+          email: form.email,
+          contact: form.phone,
+        },
+        theme: {
+          color: '#e63946',
+        },
+        modal: {
+          ondismiss: function() {
+            setProcessingPayment(false);
+          }
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (error) {
+      console.error('Payment error:', error);
+      alert('Payment failed. Please try again.');
+      setProcessingPayment(false);
+    }
+  };
+
+  const handleCodOrder = async (orderData) => {
+    try {
+      const finalOrderData = {
+        ...orderData,
+        paymentDetails: {
+          ...orderData.paymentDetails,
+          status: 'pending',
+        },
+      };
+
+      // If user is not authenticated, create order without userId
+      if (!user) {
+        const guestOrderData = {
+          ...finalOrderData,
+          guestInfo: {
+            name: form.fullName,
+            email: form.email,
+            phone: form.phone,
+          },
+        };
+        await api.post('/orders/guest', guestOrderData);
+      } else {
+        await api.post('/orders', finalOrderData);
+      }
+
+      setOrderPlaced(true);
+      clearCart();
+    } catch (error) {
+      console.error('Order error:', error);
+      alert('Failed to place order. Please try again.');
+    }
+  };
 
   return (
     <>
@@ -142,6 +313,13 @@ export default function Checkout() {
           <div>
             <p className="text-uppercase text-muted mb-1">Checkout</p>
             <h1 className="fw-black">Complete your order</h1>
+            {!user && (
+              <p className="text-muted">
+                <small>
+                  No account required! <span className="text-primary" style={{ cursor: 'pointer' }} onClick={() => {/* Trigger auth modal */}}>Create an account</span> for order tracking.
+                </small>
+              </p>
+            )}
           </div>
           <div className="text-end">
             <p className="mb-1">India only</p>
@@ -151,8 +329,8 @@ export default function Checkout() {
 
         {orderPlaced ? (
           <div className="alert alert-success">
-            <h4 className="alert-heading">Order placed!</h4>
-            <p>Your order has been confirmed. We will email your order details shortly.</p>
+            <h4 className="alert-heading">Order placed successfully!</h4>
+            <p>Your order has been confirmed. We will contact you shortly.</p>
             <Link to="/" className="btn btn-primary">
               Continue shopping
             </Link>
@@ -324,11 +502,13 @@ export default function Checkout() {
                           className="form-check-input"
                           type="radio"
                           name="payment"
-                          value="cod"
-                          checked={form.payment === "cod"}
+                          value="online"
+                          checked={form.payment === "online"}
                           onChange={handleFieldChange}
                         />
-                        <span className="form-check-label ms-2">Cash on delivery</span>
+                        <span className="form-check-label ms-2">
+                          Online payment (UPI, Cards, Net Banking)
+                        </span>
                       </label>
                     </div>
                     <div className="col-12">
@@ -337,11 +517,11 @@ export default function Checkout() {
                           className="form-check-input"
                           type="radio"
                           name="payment"
-                          value="online"
-                          checked={form.payment === "online"}
+                          value="cod"
+                          checked={form.payment === "cod"}
                           onChange={handleFieldChange}
                         />
-                        <span className="form-check-label ms-2">Online payment</span>
+                        <span className="form-check-label ms-2">Cash on delivery</span>
                       </label>
                     </div>
                   </div>
@@ -386,10 +566,19 @@ export default function Checkout() {
                     </span>
                   </div>
                   {fetchError && <div className="alert alert-warning">{fetchError}</div>}
-                  <button type="submit" className="btn btn-primary w-100 mb-3">
-                    Place order
+                  <button 
+                    type="submit" 
+                    className="btn btn-primary w-100 mb-3"
+                    disabled={processingPayment}
+                  >
+                    {processingPayment ? 'Processing...' : 'Place order'}
                   </button>
-                  <button type="button" className="btn btn-outline-secondary w-100" onClick={() => navigate(-1)}>
+                  <button 
+                    type="button" 
+                    className="btn btn-outline-secondary w-100" 
+                    onClick={() => navigate(-1)}
+                    disabled={processingPayment}
+                  >
                     Edit cart
                   </button>
                 </section>

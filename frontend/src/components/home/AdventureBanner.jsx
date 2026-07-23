@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import ladakh from "../../assets/images/ladakh-ride.png";
 
 export default function AdventureBanner() {
@@ -26,9 +27,9 @@ export default function AdventureBanner() {
             <p className="lead text-secondary-white mb-4 fs-6 fw-normal lh-base">
               Complete gear checklists, altitude-tested essentials, and expert advice for your next high-altitude adventure.
             </p>
-            <a href="/trip-ready" className="btn btn-trip-ready px-4 py-3 text-uppercase fw-bold text-decoration-none">
+            <Link to="/trip-ready" className="btn btn-trip-ready px-4 py-3 text-uppercase fw-bold text-decoration-none">
               Trip Ready Gear <span className="arrow-icon ms-1">→</span>
-            </a>
+            </Link>
           </div>
         </div>
 

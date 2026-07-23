@@ -1,6 +1,8 @@
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/AuthContext";
+import AuthModal from "../auth/AuthModal";
 import logo from "../../assets/images/logo.png";
 
 export default function Header() {
@@ -8,6 +10,9 @@ export default function Header() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [search, setSearch] = useState(searchParams.get("q") || "");
+  const { itemCount, toggleCart } = useCart();
+  const { user, logout, isAdmin } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
     setSearch(searchParams.get("q") || "");
@@ -29,7 +34,11 @@ export default function Header() {
     navigate({ pathname: targetPath, search: searchString ? `?${searchString}` : "" });
   }
 
-  const { itemCount, toggleCart } = useCart();
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
   const currentSearchString = searchParams.toString();
   const shopLink = currentSearchString ? `/shop?${currentSearchString}` : "/shop";
   const wishlistLink = currentSearchString ? `/wishlist?${currentSearchString}` : "/wishlist";
@@ -52,18 +61,44 @@ export default function Header() {
         {/* Right Actions */}
         <div className="header-actions">
           <div className="nav-right-cta d-none d-lg-block">
-            <a href="/shop" className="cta-button">
+            <Link to="/shop" className="cta-button">
               NEED HELP?
-            </a>
+            </Link>
           </div>
 
           <Link to={wishlistLink} className="action-item" title="Wishlist">
             ❤️
           </Link>
 
-          <a href="/shop" className="action-item" title="Profile">
-            👤
-          </a>
+          {user ? (
+            <>
+              <Link to="/shop" className="action-item" title="Profile">
+                👤
+              </Link>
+
+              {isAdmin && (
+                <Link to="/dashboard" className="action-item" title="Dashboard">
+                  ⚙️
+                </Link>
+              )}
+
+              <button 
+                className="action-item" 
+                title="Logout" 
+                onClick={handleLogout}
+              >
+                🚪
+              </button>
+            </>
+          ) : (
+            <button 
+              className="action-item" 
+              title="Login" 
+              onClick={() => setShowAuthModal(true)}
+            >
+              🔐
+            </button>
+          )}
 
           <button type="button" className="action-item cart-icon" title="Cart" onClick={toggleCart}>
             🛒 <span className="cart-badge">{itemCount}</span>
@@ -91,7 +126,7 @@ export default function Header() {
             <li className="nav-item dropdown">
               <a
                 className="nav-link dropdown-toggle"
-                href="/shop?category=riding%20jackets&q=Riding%20Jackets"
+                href="#"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               >
@@ -100,45 +135,45 @@ export default function Header() {
 
               <ul className="dropdown-menu">
                 <li>
-                  <a className="dropdown-item" href="/shop?category=riding%20jackets&q=Riding%20Jackets">
+                  <Link className="dropdown-item" to="/shop?category=riding%20jackets&q=Riding%20Jackets">
                     Riding/Touring Jackets
-                  </a>
+                  </Link>
                 </li>
 
                 <li>
-                  <a className="dropdown-item" href="/shop?category=riding%20pants&q=Riding%20Pants">
+                  <Link className="dropdown-item" to="/shop?category=riding%20pants&q=Riding%20Pants">
                     Riding/Touring Pants
-                  </a>
+                  </Link>
                 </li>
 
                 <li>
-                  <a className="dropdown-item" href="/shop?category=riding%20gloves&q=Riding%20Gloves">
+                  <Link className="dropdown-item" to="/shop?category=riding%20gloves&q=Riding%20Gloves">
                     Riding/Touring Gloves
-                  </a>
+                  </Link>
                 </li>
 
                 <li>
-                  <a className="dropdown-item" href="/shop?category=riding%20boots&q=Riding%20Boots">
+                  <Link className="dropdown-item" to="/shop?category=riding%20boots&q=Riding%20Boots">
                     Riding/Touring Boots
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </li>
 
             <li>
-              <a href="/shop?category=helmets&q=Helmets">Helmets</a>
+              <Link to="/shop?category=helmets&q=Helmets">Helmets</Link>
             </li>
 
             <li>
-              <a href="/shop?category=exhausts&q=Exhausts">Performance Parts</a>
+              <Link to="/shop?category=exhausts&q=Exhausts">Performance Parts</Link>
             </li>
 
             <li>
-              <a href="/shop?category=luggage-systems&q=Luggage%20Systems">Bike Accessories</a>
+              <Link to="/shop?category=luggage-systems&q=Luggage%20Systems">Bike Accessories</Link>
             </li>
 
             <li>
-              <a href="/shop">Brands</a>
+              <Link to="/shop">Brands</Link>
             </li>
           </ul>
         </nav>
@@ -163,6 +198,9 @@ export default function Header() {
           </button>
         </form>
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </header>
   );
 }

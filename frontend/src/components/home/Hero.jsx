@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import banner1 from "../../assets/images/banner-1.jpg";
 import banner2 from "../../assets/images/banner-2.png";
 import banner3 from "../../assets/images/banner-3.png";
@@ -62,15 +63,15 @@ export default function Hero() {
 
                     <div className="d-flex flex-column flex-sm-row gap-2 gap-sm-3">
                       {s.ctaPrimary && (
-                        <a href="/shop" className="btn btn-action-red px-3 px-md-4 py-2 py-md-3 text-uppercase fw-bold fs-7 fs-md-6 text-center">
+                        <Link to="/shop" className="btn btn-action-red px-3 px-md-4 py-2 py-md-3 text-uppercase fw-bold fs-7 fs-md-6 text-center">
                           {s.ctaPrimary}
-                        </a>
+                        </Link>
                       )}
 
                       {s.ctaSecondary && (
-                        <a href="/shop" className="btn btn-action-outline px-3 px-md-4 py-2 py-md-3 text-uppercase fw-bold fs-7 fs-md-6 text-center">
+                        <Link to="/shop" className="btn btn-action-outline px-3 px-md-4 py-2 py-md-3 text-uppercase fw-bold fs-7 fs-md-6 text-center">
                           {s.ctaSecondary}
-                        </a>
+                        </Link>
                       )}
                     </div>
                   </div>

@@ -4,9 +4,10 @@ import Header from "../components/layout/Navbar";
 import Footer from "../components/layout/footer";
 import FiltersSidebar from "../components/shop/FiltersSidebar";
 import ProductGrid from "../components/shop/ProductGrid";
-import productsData from "../data/products";
+import { useProducts } from "../context/ProductContext";
 
 export default function Shop() {
+  const { products: productsData } = useProducts();
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
@@ -16,19 +17,21 @@ export default function Shop() {
 
   const categories = useMemo(() => {
     return Array.from(new Set(productsData.map((p) => p.category)));
-  }, []);
+  }, [productsData]);
 
   const brands = useMemo(() => {
     return Array.from(new Set(productsData.map((p) => p.brand).filter(Boolean)));
-  }, []);
+  }, [productsData]);
 
   useEffect(() => {
     // initialize priceRange from data
-    const prices = productsData.map((p) => p.price || 0);
-    const min = Math.min(...prices);
-    const max = Math.max(...prices);
-    setPriceRange({ min, max });
-  }, []);
+    if (productsData.length > 0) {
+      const prices = productsData.map((p) => p.price || 0);
+      const min = Math.min(...prices);
+      const max = Math.max(...prices);
+      setPriceRange({ min, max });
+    }
+  }, [productsData]);
 
   useEffect(() => {
     const categoryParam = searchParams.get("category");
@@ -83,8 +86,8 @@ export default function Shop() {
 
     if (sortBy === "price-asc") return res.sort((a, b) => a.price - b.price);
     if (sortBy === "price-desc") return res.sort((a, b) => b.price - a.price);
-    return res.sort((a, b) => b.id - a.id);
-  }, [selectedCategories, selectedBrands, priceRange, sortBy, search]);
+    return res.sort((a, b) => (b.createdAt || b.id) - (a.createdAt || a.id));
+  }, [selectedCategories, selectedBrands, priceRange, sortBy, search, productsData]);
 
   function clearFilters() {
     setSelectedCategories([]);

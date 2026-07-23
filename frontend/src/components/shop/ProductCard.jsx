@@ -5,6 +5,11 @@ import { useCart } from "../../context/CartContext";
 export default function ProductCard({ product }) {
   const { addItem, openCart } = useCart();
 
+  const handleAddToCart = () => {
+    addItem(product, 1);
+    openCart();
+  };
+
   return (
     <div className="card h-100">
       <img
@@ -17,17 +22,14 @@ export default function ProductCard({ product }) {
         <h6 className="card-title">{product.title}</h6>
         <p className="card-text text-muted mb-2">{product.category}</p>
         <div className="mt-auto d-flex justify-content-between align-items-center">
-          <strong>${product.price.toFixed(2)}</strong>
+          <strong>₹{product.price.toFixed(2)}</strong>
           <div>
             <Link to={`/shop/product/${product.id}`} className="btn btn-sm btn-outline-primary me-2">
               View
             </Link>
             <button
               className="btn btn-sm btn-primary"
-              onClick={() => {
-                addItem(product, 1);
-                openCart();
-              }}
+              onClick={handleAddToCart}
             >
               Add
             </button>

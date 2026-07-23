@@ -5,6 +5,8 @@ import TripReady from "../pages/TripReady";
 import ProductPage from "../pages/ProductPage";
 import Wishlist from "../pages/Wishlist";
 import Checkout from "../pages/Checkout";
+import Dashboard from "../pages/Dashboard";
+import ProtectedRoute from "../components/auth/ProtectedRoute";
 
 export default function AppRoutes() {
   return (
@@ -15,6 +17,14 @@ export default function AppRoutes() {
       <Route path="/shop/product/:id" element={<ProductPage />} />
       <Route path="/wishlist" element={<Wishlist />} />
       <Route path="/checkout" element={<Checkout />} />
+      <Route 
+        path="/dashboard" 
+        element={
+          <ProtectedRoute requireAdmin={true}>
+            <Dashboard />
+          </ProtectedRoute>
+        } 
+      />
     </Routes>
   );
 }

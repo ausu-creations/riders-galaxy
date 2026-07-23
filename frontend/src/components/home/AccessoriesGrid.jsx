@@ -19,9 +19,9 @@ export default function AccessoriesGrid() {
             </h2>
           </div>
           <div>
-            <a href="/shop" className="view-all-link text-uppercase fw-bold text-decoration-none text-black fs-7">
+            <Link to="/shop" className="view-all-link text-uppercase fw-bold text-decoration-none text-black fs-7">
               View All <span className="arrow-shift">&rarr;</span>
-            </a>
+            </Link>
           </div>
         </div>
 
