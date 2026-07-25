@@ -112,6 +112,32 @@ const products = [
     sizes: [],
     colors: [],
   },
+  {
+    id: 9,
+    title: "Custom Jersey",
+    price: 89.99,
+    category: "Jersey",
+    brand: "Fox Racing",
+    image: JacketsImg,
+    images: [JacketsImg],
+    description: "Custom racing jersey for track and trail riding.",
+    sizes: ["S", "M", "L", "XL"],
+    colors: ["Red", "Blue", "Black"],
+    tripReady: false,
+  },
+  {
+    id: 10,
+    title: "Hydration Pack",
+    price: 49.99,
+    category: "Hydration",
+    brand: "CamelBak",
+    image: GlovesImg,
+    images: [GlovesImg],
+    description: "Lightweight hydration pack for long rides.",
+    sizes: [],
+    colors: ["Black", "Blue"],
+    tripReady: true,
+  },
 ];
 
 export default products;

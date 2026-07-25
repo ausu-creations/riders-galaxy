@@ -17,8 +17,8 @@ export default function LongHaul() {
               <p className="text-secondary-white mb-4 fs-6 fw-normal lh-base">Finest saddlebags, tail bags and top boxes engineered for your long hauls. Waterproof, expandable, universal-fit — built to carry everything your journey demands.</p>
 
               <div className="d-flex gap-3 mb-5 mb-lg-4">
-                <Link to={`/shop?category=${encodeURIComponent("luggage-systems")}&q=${encodeURIComponent("Luggage Systems")}`} className="btn btn-explore px-4 py-3 text-uppercase fw-bold text-decoration-none">Explore Products &rarr;</Link>
-                <Link to={`/shop?category=${encodeURIComponent("top-box")}&q=${encodeURIComponent("Top Boxes")}`} className="btn btn-outline-boxes px-4 py-3 text-uppercase fw-bold text-decoration-none">Top Boxes</Link>
+                <Link to={`/shop?category=${encodeURIComponent("luggage")}&q=${encodeURIComponent("Luggage")}`} className="btn btn-explore px-4 py-3 text-uppercase fw-bold text-decoration-none">Explore Products &rarr;</Link>
+                <Link to={`/shop?category=${encodeURIComponent("top-box")}&q=${encodeURIComponent("Top Box")}`} className="btn btn-outline-boxes px-4 py-3 text-uppercase fw-bold text-decoration-none">Top Boxes</Link>
               </div>
             </div>
 
@@ -47,8 +47,8 @@ export default function LongHaul() {
           <div className="col-lg-6">
             <div className="row row-cols-2 g-3 h-100 align-content-start">
               <div className="col">
-                <Link to={`/shop?brand=${encodeURIComponent("rynox")}&q=${encodeURIComponent("Rynox")}`} className="text-decoration-none text-reset">
-                  <div className="fitment-card position-relative overflow-hidden rounded-1 border border-secondary border-opacity-25" data-bike="rynox">
+                <Link to={`/shop?brand=${encodeURIComponent("Rynox")}&q=${encodeURIComponent("Rynox")}`} className="text-decoration-none text-reset">
+                  <div className="fitment-card position-relative overflow-hidden rounded-1 border border-secondary border-opacity-25" data-bike="Rynox">
                     <div className="card-image-tint"></div>
                     <img src={RynoxImg} alt="Rynox Fit" className="img-fluid w-100 h-100 object-fit-cover" />
                     <div className="card-overlay-text p-3">
@@ -60,8 +60,8 @@ export default function LongHaul() {
               </div>
 
               <div className="col">
-                <Link to={`/shop?brand=${encodeURIComponent("viaterra")}&q=${encodeURIComponent("Viaterra")}`} className="text-decoration-none text-reset">
-                  <div className="fitment-card position-relative overflow-hidden rounded-1 border border-secondary border-opacity-25" data-bike="viaterra">
+                <Link to={`/shop?brand=${encodeURIComponent("Viaterra")}&q=${encodeURIComponent("Viaterra")}`} className="text-decoration-none text-reset">
+                  <div className="fitment-card position-relative overflow-hidden rounded-1 border border-secondary border-opacity-25" data-bike="Viaterra">
                     <div className="card-image-tint"></div>
                     <img src={ViaterraImg} alt="Viaterra Fit" className="img-fluid w-100 h-100 object-fit-cover" />
                     <div className="card-overlay-text p-3">
@@ -73,8 +73,8 @@ export default function LongHaul() {
               </div>
 
               <div className="col">
-                <Link to={`/shop?brand=${encodeURIComponent("lone-ranger")}&q=${encodeURIComponent("Lone Ranger")}`} className="text-decoration-none text-reset">
-                  <div className="fitment-card position-relative overflow-hidden rounded-1 border border-secondary border-opacity-25" data-bike="lone-ranger">
+                <Link to={`/shop?brand=${encodeURIComponent("Lone Ranger")}&q=${encodeURIComponent("Lone Ranger")}`} className="text-decoration-none text-reset">
+                  <div className="fitment-card position-relative overflow-hidden rounded-1 border border-secondary border-opacity-25" data-bike="Lone Ranger">
                     <div className="card-image-tint"></div>
                     <img src={LoneRangerImg} alt="Lone Ranger Fit" className="img-fluid w-100 h-100 object-fit-cover" />
                     <div className="card-overlay-text p-3">
@@ -86,8 +86,8 @@ export default function LongHaul() {
               </div>
 
               <div className="col">
-                <Link to={`/shop?brand=${encodeURIComponent("raida")}&q=${encodeURIComponent("Raida")}`} className="text-decoration-none text-reset">
-                  <div className="fitment-card position-relative overflow-hidden rounded-1 border border-secondary border-opacity-25" data-bike="raida">
+                <Link to={`/shop?brand=${encodeURIComponent("Raida")}&q=${encodeURIComponent("Raida")}`} className="text-decoration-none text-reset">
+                  <div className="fitment-card position-relative overflow-hidden rounded-1 border border-secondary border-opacity-25" data-bike="Raida">
                     <div className="card-image-tint"></div>
                     <img src={RaidaImg} alt="Raida Fit" className="img-fluid w-100 h-100 object-fit-cover" />
                     <div className="card-overlay-text p-3">

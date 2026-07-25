@@ -45,7 +45,7 @@ export default function AccessoriesGrid() {
           </div>
 
           <div className="col">
-            <Link to={`/shop?category=${encodeURIComponent("jackets")}&q=${encodeURIComponent("Riding Jacket")}`} className="text-decoration-none text-reset">
+            <Link to={`/shop?category=${encodeURIComponent("jackets")}&q=${encodeURIComponent("Riding Jackets")}`} className="text-decoration-none text-reset">
               <div className="category-card position-relative overflow-hidden h-100 p-3" data-category="jackets">
               <div className="card-img-wrapper">
                 <span className="badge-products text-uppercase">11 Products</span>
@@ -117,8 +117,8 @@ export default function AccessoriesGrid() {
           </div>
 
           <div className="col">
-            <Link to={`/shop?category=${encodeURIComponent("intercoms")}&q=${encodeURIComponent("Intercoms")}`} className="text-decoration-none text-reset">
-              <div className="category-card position-relative overflow-hidden h-100 p-3" data-category="intercoms">
+            <Link to={`/shop?category=${encodeURIComponent("intercom")}&q=${encodeURIComponent("Intercom")}`} className="text-decoration-none text-reset">
+              <div className="category-card position-relative overflow-hidden h-100 p-3" data-category="intercom">
               <div className="card-img-wrapper">
                 <span className="badge-products text-uppercase">10 Products</span>
                 <img src={IntercomsImg} alt="Intercoms" className="img-fluid w-100" />

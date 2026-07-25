@@ -2,26 +2,26 @@ import React from "react";
 import DoubleThumbSlider from "../common/DoubleThumbSlider";
 
 const DEFAULT_CATEGORIES = [
-  "Helmets",
-  "Riding Jackets",
-  "Riding Gloves",
-  "Riding Pants",
-  "Riding Boots",
-  "Intercom",
-  "Crash Gaurds",
-  "AUX Lights",
-  "Mobile/Camera Mounts",
-  "Navigation Screens",
-  "Luggage Systems",
-  "Exhausts",
   "Air Filter",
-  "Spark Plugs",
+  "AUX Lights",
   "Brake Pads",
   "Chain Sprockets",
+  "Crash Gaurds",
+  "Exhausts",
+  "Helmets",
+  "Intercom",
+  "Luggage Systems",
+  "Mobile/Camera Mounts",
+  "Navigation Screens",
+  "Riding Boots",
+  "Riding Gloves",
+  "Riding Jackets",
+  "Riding Pants",
+  "Spark Plugs",
   "Others",
 ];
 
-const DEFAULT_BRANDS = ["Axor", "Raida", "DSG", "Royal Enfield", "Korda", "LS2", "Rynox", "Lone Ranger", "Others"];
+const DEFAULT_BRANDS = ["Axor", "DSG", "Korda", "LS2", "Lone Ranger", "Raida", "Royal Enfield", "Rynox", "Others"];
 
 export default function FiltersSidebar({
   categories = DEFAULT_CATEGORIES,

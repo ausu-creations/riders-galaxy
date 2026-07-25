@@ -40,8 +40,8 @@ export default function PerformanceGrid() {
           </div>
 
           <div className="col">
-            <Link to={`/shop?category=${encodeURIComponent("air-filters")}&q=${encodeURIComponent("Air Filter")}`} className="text-decoration-none text-reset">
-              <div className="performance-card position-relative overflow-hidden h-100 p-3" data-category="air-filters">
+            <Link to={`/shop?category=${encodeURIComponent("air-filter")}&q=${encodeURIComponent("Air Filter")}`} className="text-decoration-none text-reset">
+              <div className="performance-card position-relative overflow-hidden h-100 p-3" data-category="air-filter">
               <div className="card-img-wrapper">
                 <span className="badge-count text-uppercase">14 Products</span>
                 <img src={AirFilterImg} alt="Air Filters" className="img-fluid w-100" />
@@ -76,8 +76,8 @@ export default function PerformanceGrid() {
           </div>
 
           <div className="col">
-            <Link to={`/shop?category=${encodeURIComponent("brake-pads")}&q=${encodeURIComponent("Brake Pads")}`} className="text-decoration-none text-reset">
-              <div className="performance-card position-relative overflow-hidden h-100 p-3" data-category="brake-pads">
+            <Link to={`/shop?category=${encodeURIComponent("brake")}&q=${encodeURIComponent("Brake Pads")}`} className="text-decoration-none text-reset">
+              <div className="performance-card position-relative overflow-hidden h-100 p-3" data-category="brake">
               <div className="card-img-wrapper">
                 <span className="badge-count text-uppercase">201 Products</span>
                 <img src={BrakesImg} alt="Brake Pads" className="img-fluid w-100" />
@@ -94,8 +94,8 @@ export default function PerformanceGrid() {
           </div>
 
           <div className="col">
-            <Link to={`/shop?category=${encodeURIComponent("sprockets")}&q=${encodeURIComponent("Chain Sprockets")}`} className="text-decoration-none text-reset">
-              <div className="performance-card position-relative overflow-hidden h-100 p-3" data-category="sprockets">
+            <Link to={`/shop?category=${encodeURIComponent("sprocket")}&q=${encodeURIComponent("Chain Sprockets")}`} className="text-decoration-none text-reset">
+              <div className="performance-card position-relative overflow-hidden h-100 p-3" data-category="sprocket">
               <div className="card-img-wrapper">
                 <span className="badge-count text-uppercase">9 Products</span>
                 <img src={ChainsetImg} alt="Chain Sprockets" className="img-fluid w-100" />

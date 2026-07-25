@@ -22,8 +22,8 @@ export default function TouringGrid() {
 
         <div className="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2 g-md-3">
           <div className="col">
-            <Link to={`/shop?category=${encodeURIComponent("crash-gaurds")}&q=${encodeURIComponent("Crash Gaurds")}`} className="text-decoration-none text-reset">
-              <div className="touring-card position-relative overflow-hidden h-100 p-3" data-category="crash-gaurds">
+            <Link to={`/shop?category=${encodeURIComponent("crash")}&q=${encodeURIComponent("Crash Gaurds")}`} className="text-decoration-none text-reset">
+              <div className="touring-card position-relative overflow-hidden h-100 p-3" data-category="crash">
               <div className="card-img-wrapper">
                 <span className="badge-count text-uppercase">22 Products</span>
                 <img src={CrashGuardsImg} alt="Crash Gaurds" className="img-fluid w-100" />
@@ -76,7 +76,7 @@ export default function TouringGrid() {
           </div>
 
           <div className="col">
-            <Link to={`/shop?category=${encodeURIComponent("navigation")}&q=${encodeURIComponent("Navigation Screen")}`} className="text-decoration-none text-reset">
+            <Link to={`/shop?category=${encodeURIComponent("navigation")}&q=${encodeURIComponent("GPS")}`} className="text-decoration-none text-reset">
               <div className="category-card position-relative overflow-hidden h-100 p-3" data-category="navigation">
               <div className="card-img-wrapper">
                 <span className="badge-products text-uppercase">3 Products</span>
@@ -94,8 +94,8 @@ export default function TouringGrid() {
           </div>
 
           <div className="col">
-            <Link to={`/shop?category=${encodeURIComponent("luggage-systems")}&q=${encodeURIComponent("Luggage Systems")}`} className="text-decoration-none text-reset">
-              <div className="touring-card position-relative overflow-hidden h-100 p-3" data-category="luggage-systems">
+            <Link to={`/shop?category=${encodeURIComponent("luggage")}&q=${encodeURIComponent("Luggage")}`} className="text-decoration-none text-reset">
+              <div className="touring-card position-relative overflow-hidden h-100 p-3" data-category="luggage">
               <div className="card-img-wrapper">
                 <span className="badge-count text-uppercase">23 Products</span>
                 <img src={LuggageImg} alt="Luggage Systems" className="img-fluid w-100" />

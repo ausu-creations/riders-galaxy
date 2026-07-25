@@ -6,6 +6,28 @@ import FiltersSidebar from "../components/shop/FiltersSidebar";
 import ProductGrid from "../components/shop/ProductGrid";
 import { useProducts } from "../context/ProductContext";
 
+const DEFAULT_CATEGORIES = [
+  "Air Filter",
+  "AUX Lights",
+  "Brake Pads",
+  "Chain Sprockets",
+  "Crash Gaurds",
+  "Exhausts",
+  "Helmets",
+  "Intercom",
+  "Luggage Systems",
+  "Mobile/Camera Mounts",
+  "Navigation Screens",
+  "Riding Boots",
+  "Riding Gloves",
+  "Riding Jackets",
+  "Riding Pants",
+  "Spark Plugs",
+  "Others",
+];
+
+const DEFAULT_BRANDS = ["Axor", "DSG", "Korda", "LS2", "Lone Ranger", "Raida", "Royal Enfield", "Rynox", "Others"];
+
 export default function Shop() {
   const { products: productsData } = useProducts();
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -16,12 +38,12 @@ export default function Shop() {
   const search = searchParams.get("q") || "";
 
   const categories = useMemo(() => {
-    return Array.from(new Set(productsData.map((p) => p.category)));
-  }, [productsData]);
+    return DEFAULT_CATEGORIES;
+  }, []);
 
   const brands = useMemo(() => {
-    return Array.from(new Set(productsData.map((p) => p.brand).filter(Boolean)));
-  }, [productsData]);
+    return DEFAULT_BRANDS;
+  }, []);
 
   useEffect(() => {
     // initialize priceRange from data
@@ -44,7 +66,10 @@ export default function Shop() {
     }
 
     if (brandParam) {
-      const matched = brands.find((b) => b.toLowerCase().includes(brandParam.toLowerCase()));
+      // Handle brand parameter - try exact match first, then fuzzy match
+      const matched = brands.find((b) => b.toLowerCase() === brandParam.toLowerCase() || 
+                                       b.toLowerCase().includes(brandParam.toLowerCase()) ||
+                                       brandParam.toLowerCase().includes(b.toLowerCase()));
       if (matched) setSelectedBrands([matched]);
     }
     // only run on mount / when params or categories change
@@ -58,19 +83,35 @@ export default function Shop() {
     const res = productsData.filter((p) => {
       const combined = normalize([p.title, p.category, p.brand].join(" "));
 
-      // category filter: if any selected category doesn't match combined string -> exclude
+      // category filter: exact category matching
       if (selectedCategories.length) {
         const ok = selectedCategories.some((sel) => {
           const selNorm = normalize(sel);
-          if (selNorm === "others") return false;
-          return combined.includes(selNorm.split(" ")[0]);
+          const productCategory = normalize(p.category);
+          
+          // Handle "Others" case - include products not in DEFAULT_CATEGORIES
+          if (selNorm === "others") {
+            return !DEFAULT_CATEGORIES.some(defaultCat => normalize(defaultCat) === productCategory);
+          }
+          
+          // Exact match or very close match (handle plural/singular)
+          return productCategory === selNorm || 
+                 productCategory === selNorm + "s" ||
+                 selNorm === productCategory + "s";
         });
         if (!ok) return false;
       }
 
       // brand filter
       if (selectedBrands.length) {
-        if (!selectedBrands.includes(p.brand)) return false;
+        const ok = selectedBrands.some((sel) => {
+          // Handle "Others" case - include products not in DEFAULT_BRANDS
+          if (sel === "Others") {
+            return !DEFAULT_BRANDS.includes(p.brand);
+          }
+          return sel === p.brand;
+        });
+        if (!ok) return false;
       }
 
       // price filter
