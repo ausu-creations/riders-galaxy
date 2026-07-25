@@ -36,12 +36,19 @@ export const ProductProvider = ({ children }) => {
     const newProduct = {
       ...product,
       id: Date.now(), // Simple ID generation
+      // Convert sizeStock object to array for MongoDB compatibility
+      sizeStock: product.sizeStock ? Object.entries(product.sizeStock).map(([size, stock]) => ({ size, stock })) : []
     };
     setProducts([...products, newProduct]);
   };
 
   const updateProduct = (id, updatedProduct) => {
-    setProducts(products.map((p) => (p.id === id ? { ...p, ...updatedProduct } : p)));
+    // Convert sizeStock object to array for MongoDB compatibility
+    const productWithSizeStock = {
+      ...updatedProduct,
+      sizeStock: updatedProduct.sizeStock ? Object.entries(updatedProduct.sizeStock).map(([size, stock]) => ({ size, stock })) : []
+    };
+    setProducts(products.map((p) => (p.id === id ? { ...p, ...productWithSizeStock } : p)));
   };
 
   const deleteProduct = (id) => {
@@ -49,7 +56,7 @@ export const ProductProvider = ({ children }) => {
   };
 
   const getProduct = (id) => {
-    return products.find((p) => p.id === parseInt(id));
+    return products.find((p) => p.id === parseInt(id) || p.id === id);
   };
 
   return (

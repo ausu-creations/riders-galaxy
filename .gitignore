@@ -36,3 +36,7 @@ Thumbs.db
 # favicon.svg
 # icons.svg
 # .nojekyll
+
+# Uploads directory (keep directory but ignore individual files)
+frontend/src/assets/uploads/*
+!frontend/src/assets/uploads/.gitkeep

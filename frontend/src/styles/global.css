@@ -1104,6 +1104,30 @@ button.action-item:hover {
   color: #ffffff;
 }
 
+.size-option.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  position: relative;
+}
+
+.size-option .stock-count {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: var(--theme-accent-red);
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.size-option:not(.disabled) .stock-count {
+  background-color: var(--theme-accent-blue);
+}
+
 .size-chart-link {
   background: none;
   border: none;

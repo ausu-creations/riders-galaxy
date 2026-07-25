@@ -92,6 +92,26 @@ router.put('/:id', authenticate, requireAdmin, async (req, res) => {
   }
 });
 
+// Update product stock for specific size (admin only)
+router.put('/:id/stock', authenticate, requireAdmin, async (req, res) => {
+  try {
+    const { size, quantity } = req.body;
+    const product = await Product.findById(req.params.id);
+    
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    
+    product.updateStockForSize(size, quantity);
+    await product.save();
+    
+    res.json({ product });
+  } catch (error) {
+    console.error('Update stock error:', error);
+    res.status(500).json({ error: 'Failed to update stock' });
+  }
+});
+
 // Delete product (admin only)
 router.delete('/:id', authenticate, requireAdmin, async (req, res) => {
   try {

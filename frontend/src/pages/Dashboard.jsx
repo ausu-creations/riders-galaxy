@@ -20,7 +20,10 @@ function DashboardContent() {
   const [productFormData, setProductFormData] = useState({
     title: "", price: "", category: "", brand: "", description: "",
     sizes: "", colors: "", tripReady: false, image: "", images: "", stock: 0,
+    sizeStock: {}, // New: individual stock for each size
   });
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState('');
 
   // Orders state
   const [orders, setOrders] = useState([]);
@@ -86,18 +89,27 @@ function DashboardContent() {
   const handleProductSubmit = (e) => {
     e.preventDefault();
     
+    const sizes = productFormData.sizes.split(",").map(s => s.trim()).filter(s => s);
+    
+    // Build sizeStock object from form data
+    const sizeStock = {};
+    sizes.forEach(size => {
+      sizeStock[size] = parseInt(productFormData.sizeStock[size]) || 0;
+    });
+    
     const productData = {
       title: productFormData.title,
       price: parseFloat(productFormData.price),
       category: productFormData.category,
       brand: productFormData.brand,
       description: productFormData.description,
-      sizes: productFormData.sizes.split(",").map(s => s.trim()).filter(s => s),
+      sizes: sizes,
       colors: productFormData.colors.split(",").map(c => c.trim()).filter(c => c),
       tripReady: productFormData.tripReady,
-      image: productFormData.image || "https://via.placeholder.com/300",
+      image: uploadedImageUrl || productFormData.image || "https://via.placeholder.com/300",
       images: productFormData.images.split(",").map(img => img.trim()).filter(img => img),
       stock: parseInt(productFormData.stock) || 0,
+      sizeStock: sizeStock,
     };
 
     if (editingProduct) {
@@ -110,12 +122,63 @@ function DashboardContent() {
     setProductFormData({
       title: "", price: "", category: "", brand: "", description: "",
       sizes: "", colors: "", tripReady: false, image: "", images: "", stock: 0,
+      sizeStock: {},
     });
+    setUploadedImageUrl('');
     setShowProductForm(false);
+  };
+
+  // Image upload handler
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await api.post('/upload/image', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.success) {
+        setUploadedImageUrl(response.imageUrl);
+        setProductFormData({ ...productFormData, image: response.imageUrl });
+      }
+    } catch (error) {
+      console.error('Image upload error:', error);
+      alert('Failed to upload image');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  // Handle size stock change
+  const handleSizeStockChange = (size, value) => {
+    setProductFormData({
+      ...productFormData,
+      sizeStock: {
+        ...productFormData.sizeStock,
+        [size]: parseInt(value) || 0
+      }
+    });
   };
 
   const handleEditProduct = (product) => {
     setEditingProduct(product);
+    
+    // Convert sizeStock array to object for form
+    const sizeStockObj = {};
+    if (product.sizeStock && product.sizeStock.length > 0) {
+      product.sizeStock.forEach(item => {
+        sizeStockObj[item.size] = item.stock;
+      });
+    }
+    
     setProductFormData({
       title: product.title,
       price: product.price,
@@ -128,7 +191,9 @@ function DashboardContent() {
       image: product.image,
       images: product.images ? product.images.join(", ") : "",
       stock: product.stock || 0,
+      sizeStock: sizeStockObj,
     });
+    setUploadedImageUrl(product.image || '');
     setShowProductForm(true);
   };
 
@@ -144,7 +209,9 @@ function DashboardContent() {
     setProductFormData({
       title: "", price: "", category: "", brand: "", description: "",
       sizes: "", colors: "", tripReady: false, image: "", images: "", stock: 0,
+      sizeStock: {},
     });
+    setUploadedImageUrl('');
   };
 
   // Order handlers
@@ -376,20 +443,72 @@ function DashboardContent() {
                       />
                     </div>
                     <div className="col-md-4 mb-3">
-                      <label className="form-label">Stock</label>
+                      <label className="form-label">Total Stock</label>
                       <input
                         type="number"
                         className="form-control"
                         value={productFormData.stock}
                         onChange={(e) => setProductFormData({ ...productFormData, stock: e.target.value })}
                         min="0"
+                        readOnly
                       />
                     </div>
                   </div>
 
+                  {/* Size-wise inventory management */}
+                  {productFormData.sizes && (
+                    <div className="mb-3">
+                      <label className="form-label fw-bold">Size-wise Inventory</label>
+                      <div className="row">
+                        {productFormData.sizes.split(",").map((size, index) => {
+                          const trimmedSize = size.trim();
+                          if (!trimmedSize) return null;
+                          return (
+                            <div key={index} className="col-md-3 mb-2">
+                              <label className="form-label small">{trimmedSize} Stock</label>
+                              <input
+                                type="number"
+                                className="form-control"
+                                value={productFormData.sizeStock[trimmedSize] || 0}
+                                onChange={(e) => handleSizeStockChange(trimmedSize, e.target.value)}
+                                min="0"
+                                placeholder="0"
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="row">
                     <div className="col-md-6 mb-3">
-                      <label className="form-label">Main Image URL</label>
+                      <label className="form-label">Main Image</label>
+                      <div className="d-flex gap-2">
+                        <input
+                          type="file"
+                          className="form-control"
+                          onChange={handleImageUpload}
+                          accept="image/*"
+                          disabled={uploadingImage}
+                        />
+                        {uploadingImage && (
+                          <span className="text-muted">Uploading...</span>
+                        )}
+                      </div>
+                      {uploadedImageUrl && (
+                        <div className="mt-2">
+                          <img 
+                            src={uploadedImageUrl} 
+                            alt="Preview" 
+                            style={{ maxWidth: '100px', maxHeight: '100px' }}
+                            className="border rounded"
+                          />
+                        </div>
+                      )}
+                    </div>
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Image URL (optional)</label>
                       <input
                         type="url"
                         className="form-control"
@@ -398,6 +517,9 @@ function DashboardContent() {
                         placeholder="https://example.com/image.jpg"
                       />
                     </div>
+                  </div>
+
+                  <div className="row">
                     <div className="col-md-6 mb-3">
                       <label className="form-label">Additional Images (comma-separated)</label>
                       <input
@@ -482,7 +604,14 @@ function DashboardContent() {
                               className="rounded"
                             />
                           </td>
-                          <td>{product.title}</td>
+                          <td>
+                            <div className="fw-bold">{product.title}</div>
+                            {product.sizeStock && product.sizeStock.length > 0 && (
+                              <small className="text-muted">
+                                {product.sizeStock.map(item => `${item.size}: ${item.stock}`).join(', ')}
+                              </small>
+                            )}
+                          </td>
                           <td>{product.category}</td>
                           <td>{product.brand || "-"}</td>
                           <td>₹{product.price.toFixed(2)}</td>

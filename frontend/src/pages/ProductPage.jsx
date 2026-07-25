@@ -121,15 +121,22 @@ export default function ProductPage() {
                   <div className="product-option-section mb-4">
                     <label className="option-label d-block mb-2">Size: <span className="selected-option">{selectedSize}</span></label>
                     <div className="size-options d-flex gap-2 flex-wrap">
-                      {product.sizes.map((s) => (
-                        <button
-                          key={s}
-                          className={`size-option ${selectedSize === s ? 'active' : ''}`}
-                          onClick={() => setSelectedSize(s)}
-                        >
-                          {s}
-                        </button>
-                      ))}
+                      {product.sizes.map((s) => {
+                        const sizeStock = product.sizeStock?.find(item => item.size === s)?.stock || 0;
+                        const isOutOfStock = sizeStock === 0;
+                        return (
+                          <button
+                            key={s}
+                            className={`size-option ${selectedSize === s ? 'active' : ''} ${isOutOfStock ? 'disabled' : ''}`}
+                            onClick={() => !isOutOfStock && setSelectedSize(s)}
+                            disabled={isOutOfStock}
+                            title={isOutOfStock ? 'Out of stock' : `${s} (${sizeStock} available)`}
+                          >
+                            {s}
+                            <span className="stock-count">{sizeStock}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                     <button className="size-chart-link mt-2">Size Chart</button>
                   </div>

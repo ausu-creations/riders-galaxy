@@ -5,6 +5,9 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
 const orderRoutes = require('./routes/orders');
 const paymentRoutes = require('./routes/payment');
+const uploadRoutes = require('./routes/upload');
+const productRoutes = require('./routes/products');
+const path = require('path');
 
 const app = express();
 
@@ -16,10 +19,15 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve static files from frontend assets folder
+app.use('/riders-galaxy/assets', express.static(path.join(__dirname, '../frontend/src/assets')));
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/products', productRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
