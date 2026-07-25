@@ -43,7 +43,6 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: frontend/dist
-          artifact-name: github-pages-deploy
 
       - name: Deploy to GitHub Pages
         id: deployment
