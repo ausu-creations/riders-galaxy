@@ -38,6 +38,18 @@ export default function ProductPage() {
 
   const productImages = product.images && product.images.length > 0 ? product.images : [product.image];
 
+  // Check if product is in stock by checking sizeStock or total stock
+  const isInStock = () => {
+    // If product has sizeStock, check if any size has stock > 0
+    if (product.sizeStock && product.sizeStock.length > 0) {
+      return product.sizeStock.some(item => item.stock > 0);
+    }
+    // Fall back to total stock
+    return product.stock > 0;
+  };
+
+  const hasStock = isInStock();
+
   // Handle thumbnail click with smooth transition
   const handleThumbnailClick = (image, index) => {
     if (currentImageIndex === index) return; // Don't transition if same image
@@ -90,7 +102,12 @@ export default function ProductPage() {
             {/* Product Details Section */}
             <div className="col-lg-6">
               <div className="product-details">
-                <h1 className="product-title text-uppercase fw-black mb-2">{product.title}</h1>
+                <div className="d-flex align-items-start justify-content-between mb-2">
+                  <h1 className="product-title text-uppercase fw-black mb-0">{product.title}</h1>
+                  {!hasStock && (
+                    <span className="badge bg-danger ms-2">Out of Stock</span>
+                  )}
+                </div>
                 <p className="product-brand text-muted mb-3">{product.brand}</p>
                 
                 <div className="product-price-section mb-4">
@@ -176,11 +193,15 @@ export default function ProductPage() {
                       addItem({ ...product, selectedSize, selectedColor }, qty);
                       openCart();
                     }}
+                    disabled={!hasStock}
                   >
-                    Add to Cart
+                    {hasStock ? 'Add to Cart' : 'Out of Stock'}
                   </button>
-                  <button className="btn btn-buy-now btn-outline-primary w-100 mb-2">
-                    Buy It Now
+                  <button 
+                    className="btn btn-buy-now btn-outline-primary w-100 mb-2"
+                    disabled={!hasStock}
+                  >
+                    {hasStock ? 'Buy It Now' : 'Out of Stock'}
                   </button>
                 </div>
 

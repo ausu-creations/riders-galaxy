@@ -10,7 +10,17 @@ export default function ProductCard({ product, viewMode = "grid" }) {
     openCart();
   };
 
-  const isInStock = product.stock > 0;
+  // Check if product is in stock by checking sizeStock or total stock
+  const isInStock = () => {
+    // If product has sizeStock, check if any size has stock > 0
+    if (product.sizeStock && product.sizeStock.length > 0) {
+      return product.sizeStock.some(item => item.stock > 0);
+    }
+    // Fall back to total stock
+    return product.stock > 0;
+  };
+
+  const hasStock = isInStock();
   const badgeColor = product.tripReady ? '#28a745' : '#007bff';
 
   if (viewMode === "list") {
@@ -50,7 +60,7 @@ export default function ProductCard({ product, viewMode = "grid" }) {
                   Trip Ready
                 </span>
               )}
-              {!isInStock && (
+              {!hasStock && (
                 <span style={{
                   position: 'absolute',
                   top: '10px',
@@ -116,7 +126,7 @@ export default function ProductCard({ product, viewMode = "grid" }) {
                   }}>
                     ₹{product.price.toFixed(2)}
                   </span>
-                  {product.stock > 0 && (
+                  {hasStock && (
                     <span style={{
                       marginLeft: '8px',
                       fontSize: '0.85rem',
@@ -144,17 +154,17 @@ export default function ProductCard({ product, viewMode = "grid" }) {
                   <button
                     className="btn btn-primary btn-sm"
                     onClick={handleAddToCart}
-                    disabled={!isInStock}
+                    disabled={!hasStock}
                     style={{
                       padding: '8px 16px',
                       borderRadius: '6px',
                       border: 'none',
-                      background: isInStock ? '#007bff' : '#6c757d',
+                      background: hasStock ? '#007bff' : '#6c757d',
                       color: '#fff',
-                      cursor: isInStock ? 'pointer' : 'not-allowed'
+                      cursor: hasStock ? 'pointer' : 'not-allowed'
                     }}
                   >
-                    {isInStock ? 'Add to Cart' : 'Out of Stock'}
+                    {hasStock ? 'Add to Cart' : 'Out of Stock'}
                   </button>
                 </div>
               </div>
@@ -200,7 +210,7 @@ export default function ProductCard({ product, viewMode = "grid" }) {
             Trip Ready
           </span>
         )}
-        {!isInStock && (
+        {!hasStock && (
           <span style={{
             position: 'absolute',
             top: '10px',
@@ -244,18 +254,18 @@ export default function ProductCard({ product, viewMode = "grid" }) {
           </Link>
           <button
             onClick={handleAddToCart}
-            disabled={!isInStock}
+            disabled={!hasStock}
             style={{
               padding: '8px 12px',
               borderRadius: '6px',
-              background: isInStock ? '#007bff' : '#6c757d',
+              background: hasStock ? '#007bff' : '#6c757d',
               color: '#fff',
               border: 'none',
-              cursor: isInStock ? 'pointer' : 'not-allowed',
+              cursor: hasStock ? 'pointer' : 'not-allowed',
               fontSize: '0.85rem'
             }}
           >
-            {isInStock ? 'Add to Cart' : 'Out of Stock'}
+            {hasStock ? 'Add to Cart' : 'Out of Stock'}
           </button>
         </div>
       </div>
@@ -304,7 +314,7 @@ export default function ProductCard({ product, viewMode = "grid" }) {
           }}>
             ₹{product.price.toFixed(2)}
           </span>
-          {product.stock > 0 && (
+          {hasStock && (
             <span style={{
               fontSize: '0.75rem',
               color: '#28a745',
