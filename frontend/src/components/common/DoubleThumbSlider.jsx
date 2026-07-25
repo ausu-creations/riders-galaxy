@@ -48,7 +48,7 @@ export default function DoubleThumbSlider({ min = 0, max = 1000, values = { min:
 
   return (
     <div>
-      <div style={{ height: 36 }}>
+      <div style={{ height: 36, padding: "0 12px", boxSizing: "border-box" }}>
         <div
           ref={trackRef}
           style={{
@@ -84,6 +84,7 @@ export default function DoubleThumbSlider({ min = 0, max = 1000, values = { min:
               left: `${pct(values.min)}%`,
               width: 20,
               height: 20,
+              boxSizing: "border-box",
               borderRadius: 9999,
               background: "#fff",
               boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
@@ -106,6 +107,7 @@ export default function DoubleThumbSlider({ min = 0, max = 1000, values = { min:
               left: `${pct(values.max)}%`,
               width: 20,
               height: 20,
+              boxSizing: "border-box",
               borderRadius: 9999,
               background: "#fff",
               boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
