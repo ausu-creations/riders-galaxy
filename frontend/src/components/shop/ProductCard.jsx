@@ -10,6 +10,16 @@ export default function ProductCard({ product, viewMode = "grid" }) {
     openCart();
   };
 
+  // Calculate total stock from sizeStock or use total stock
+  const getTotalStock = () => {
+    // If product has sizeStock, sum up all size stocks
+    if (product.sizeStock && product.sizeStock.length > 0) {
+      return product.sizeStock.reduce((total, item) => total + (item.stock || 0), 0);
+    }
+    // Fall back to total stock
+    return product.stock || 0;
+  };
+
   // Check if product is in stock by checking sizeStock or total stock
   const isInStock = () => {
     // If product has sizeStock, check if any size has stock > 0
@@ -20,6 +30,7 @@ export default function ProductCard({ product, viewMode = "grid" }) {
     return product.stock > 0;
   };
 
+  const totalStock = getTotalStock();
   const hasStock = isInStock();
   const badgeColor = product.tripReady ? '#28a745' : '#007bff';
 
@@ -132,7 +143,7 @@ export default function ProductCard({ product, viewMode = "grid" }) {
                       fontSize: '0.85rem',
                       color: '#28a745'
                     }}>
-                      ({product.stock} in stock)
+                      ({totalStock} in stock)
                     </span>
                   )}
                 </div>
@@ -320,7 +331,7 @@ export default function ProductCard({ product, viewMode = "grid" }) {
               color: '#28a745',
               fontWeight: '500'
             }}>
-              {product.stock} left
+              {totalStock} left
             </span>
           )}
         </div>

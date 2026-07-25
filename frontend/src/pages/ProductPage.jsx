@@ -38,6 +38,16 @@ export default function ProductPage() {
 
   const productImages = product.images && product.images.length > 0 ? product.images : [product.image];
 
+  // Calculate total stock from sizeStock or use total stock
+  const getTotalStock = () => {
+    // If product has sizeStock, sum up all size stocks
+    if (product.sizeStock && product.sizeStock.length > 0) {
+      return product.sizeStock.reduce((total, item) => total + (item.stock || 0), 0);
+    }
+    // Fall back to total stock
+    return product.stock || 0;
+  };
+
   // Check if product is in stock by checking sizeStock or total stock
   const isInStock = () => {
     // If product has sizeStock, check if any size has stock > 0
@@ -48,6 +58,7 @@ export default function ProductPage() {
     return product.stock > 0;
   };
 
+  const totalStock = getTotalStock();
   const hasStock = isInStock();
 
   // Handle thumbnail click with smooth transition
