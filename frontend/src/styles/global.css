@@ -1111,7 +1111,7 @@ button.action-item:hover {
 }
 
 .size-option .stock-count {
-  position: absolute;
+  position: relative;
   top: -8px;
   right: -8px;
   background-color: var(--theme-accent-red);

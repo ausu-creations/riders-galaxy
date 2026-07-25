@@ -79,6 +79,13 @@ router.post('/images', authenticate, requireAdmin, upload.array('images', 10), (
       return res.status(400).json({ error: 'No files uploaded' });
     }
 
+    console.log('Uploaded files:', req.files.map(f => ({
+      originalname: f.originalname,
+      filename: f.filename,
+      path: f.path,
+      size: f.size
+    })));
+
     // Return full URLs that work with the frontend's base path
     const imageUrls = req.files.map(file => {
       // For local development, use relative path that works with Vite base config
@@ -91,6 +98,8 @@ router.post('/images', authenticate, requireAdmin, upload.array('images', 10), (
         return `/riders-galaxy/uploads/${file.filename}`;
       }
     });
+    
+    console.log('Generated image URLs:', imageUrls);
     
     res.json({
       success: true,
