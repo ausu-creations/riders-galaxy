@@ -30,6 +30,9 @@ function DashboardContent() {
   const [availableCategories, setAvailableCategories] = useState([]);
   const [showOtherBrand, setShowOtherBrand] = useState(false);
   const [showOtherCategory, setShowOtherCategory] = useState(false);
+  
+  // Predefined sizes for checkboxes
+  const PREDEFINED_SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
 
   // Orders state
   const [orders, setOrders] = useState([]);
@@ -224,6 +227,35 @@ function DashboardContent() {
     });
   };
 
+  // Handle size checkbox change
+  const handleSizeCheckboxChange = (size) => {
+    const currentSizes = productFormData.sizes ? productFormData.sizes.split(",").map(s => s.trim()).filter(s => s) : [];
+    
+    if (currentSizes.includes(size)) {
+      // Remove size
+      const newSizes = currentSizes.filter(s => s !== size);
+      setProductFormData({
+        ...productFormData,
+        sizes: newSizes.join(", "),
+        sizeStock: {
+          ...productFormData.sizeStock,
+          [size]: 0 // Reset stock for removed size
+        }
+      });
+    } else {
+      // Add size
+      const newSizes = [...currentSizes, size];
+      setProductFormData({
+        ...productFormData,
+        sizes: newSizes.join(", "),
+        sizeStock: {
+          ...productFormData.sizeStock,
+          [size]: 0 // Initialize stock for new size
+        }
+      });
+    }
+  };
+
   const handleEditProduct = (product) => {
     setEditingProduct(product);
     
@@ -242,13 +274,17 @@ function DashboardContent() {
     setShowOtherBrand(!brandInList && product.brand);
     setShowOtherCategory(!categoryInList && product.category);
     
+    // Handle sizes - if product has custom sizes not in predefined list, keep them as text
+    const productSizes = product.sizes || [];
+    const hasCustomSizes = productSizes.some(size => !PREDEFINED_SIZES.includes(size));
+    
     setProductFormData({
       title: product.title,
       price: product.price,
       category: product.category,
       brand: product.brand,
       description: product.description,
-      sizes: product.sizes ? product.sizes.join(", ") : "",
+      sizes: hasCustomSizes ? productSizes.join(", ") : productSizes.join(", "),
       colors: product.colors ? product.colors.join(", ") : "",
       tripReady: product.tripReady || false,
       image: product.image,
@@ -541,14 +577,52 @@ function DashboardContent() {
 
                   <div className="row">
                     <div className="col-md-4 mb-3">
-                      <label className="form-label">Sizes (comma-separated)</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={productFormData.sizes}
-                        onChange={(e) => setProductFormData({ ...productFormData, sizes: e.target.value })}
-                        placeholder="S, M, L, XL"
-                      />
+                      <label className="form-label">Sizes</label>
+                      <div className="size-checkboxes">
+                        {PREDEFINED_SIZES.map((size) => {
+                          const currentSizes = productFormData.sizes ? productFormData.sizes.split(",").map(s => s.trim()).filter(s => s) : [];
+                          const isChecked = currentSizes.includes(size);
+                          return (
+                            <div key={size} className="form-check form-check-inline">
+                              <input
+                                className="form-check-input"
+                                type="checkbox"
+                                id={`size-${size}`}
+                                checked={isChecked}
+                                onChange={() => handleSizeCheckboxChange(size)}
+                              />
+                              <label className="form-check-label" htmlFor={`size-${size}`}>
+                                {size}
+                              </label>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      {/* Show custom sizes input if product has sizes not in predefined list */}
+                      {productFormData.sizes && (() => {
+                        const currentSizes = productFormData.sizes.split(",").map(s => s.trim()).filter(s => s);
+                        const hasCustomSizes = currentSizes.some(size => !PREDEFINED_SIZES.includes(size));
+                        if (hasCustomSizes) {
+                          return (
+                            <div className="mt-2">
+                              <label className="form-label small text-muted">Custom Sizes (comma-separated)</label>
+                              <input
+                                type="text"
+                                className="form-control form-control-sm"
+                                value={currentSizes.filter(size => !PREDEFINED_SIZES.includes(size)).join(", ")}
+                                onChange={(e) => {
+                                  const customSizes = e.target.value.split(",").map(s => s.trim()).filter(s => s);
+                                  const predefinedSelected = PREDEFINED_SIZES.filter(size => currentSizes.includes(size));
+                                  const allSizes = [...predefinedSelected, ...customSizes];
+                                  setProductFormData({ ...productFormData, sizes: allSizes.join(", ") });
+                                }}
+                                placeholder="8, 9, 10"
+                              />
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
                     </div>
                     <div className="col-md-4 mb-3">
                       <label className="form-label">Colors (comma-separated)</label>
