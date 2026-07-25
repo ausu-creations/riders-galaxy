@@ -133,6 +133,7 @@ function DashboardContent() {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
 
+    console.log('Starting image upload for files:', files.map(f => f.name));
     setUploadingImage(true);
     
     try {
@@ -141,24 +142,31 @@ function DashboardContent() {
         formData.append('images', file);
       });
 
+      console.log('Sending upload request to /upload/images');
       const response = await api.post('/upload/images', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
+      console.log('Upload response:', response);
+
       if (response.success) {
         const newImages = response.imageUrls;
+        console.log('Received image URLs:', newImages);
         setUploadedImages([...uploadedImages, ...newImages]);
         setProductFormData({ 
           ...productFormData, 
           images: [...productFormData.images, ...newImages],
           image: response.imageUrls[0] // Set first image as main image if not set
         });
+      } else {
+        console.error('Upload failed:', response);
+        alert('Upload failed: ' + (response.error || 'Unknown error'));
       }
     } catch (error) {
       console.error('Image upload error:', error);
-      alert('Failed to upload images');
+      alert('Failed to upload images: ' + (error.response?.data?.error || error.message));
     } finally {
       setUploadingImage(false);
     }

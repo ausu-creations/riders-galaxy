@@ -52,14 +52,9 @@ router.post('/image', authenticate, requireAdmin, upload.single('image'), (req, 
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    // Return URL that works with both local development and production
-    const isProduction = process.env.NODE_ENV === 'production';
-    let imageUrl;
-    if (isProduction) {
-      imageUrl = `${process.env.BACKEND_URL || 'https://riders-galaxy-backend.onrender.com'}/riders-galaxy/uploads/${req.file.filename}`;
-    } else {
-      imageUrl = `/riders-galaxy/uploads/${req.file.filename}`;
-    }
+    // Return URL that points to the production backend
+    const backendUrl = 'https://riders-galaxy-backend.onrender.com';
+    const imageUrl = `${backendUrl}/riders-galaxy/uploads/${req.file.filename}`;
     
     res.json({
       success: true,
@@ -75,7 +70,12 @@ router.post('/image', authenticate, requireAdmin, upload.single('image'), (req, 
 // Upload multiple images
 router.post('/images', authenticate, requireAdmin, upload.array('images', 10), (req, res) => {
   try {
+    console.log('Received upload request');
+    console.log('Files in request:', req.files);
+    console.log('Request body:', req.body);
+    
     if (!req.files || req.files.length === 0) {
+      console.log('No files uploaded');
       return res.status(400).json({ error: 'No files uploaded' });
     }
 
@@ -83,20 +83,14 @@ router.post('/images', authenticate, requireAdmin, upload.array('images', 10), (
       originalname: f.originalname,
       filename: f.filename,
       path: f.path,
-      size: f.size
+      size: f.size,
+      mimetype: f.mimetype
     })));
 
-    // Return full URLs that work with the frontend's base path
+    // Return full URLs that point to the production backend
+    const backendUrl = 'https://riders-galaxy-backend.onrender.com';
     const imageUrls = req.files.map(file => {
-      // For local development, use relative path that works with Vite base config
-      // For production, use full backend URL
-      const isProduction = process.env.NODE_ENV === 'production';
-      if (isProduction) {
-        return `${process.env.BACKEND_URL || 'https://riders-galaxy-backend.onrender.com'}/riders-galaxy/uploads/${file.filename}`;
-      } else {
-        // For local development, return the path as-is since Vite handles the base path
-        return `/riders-galaxy/uploads/${file.filename}`;
-      }
+      return `${backendUrl}/riders-galaxy/uploads/${file.filename}`;
     });
     
     console.log('Generated image URLs:', imageUrls);
@@ -108,7 +102,7 @@ router.post('/images', authenticate, requireAdmin, upload.array('images', 10), (
     });
   } catch (error) {
     console.error('Upload error:', error);
-    res.status(500).json({ error: 'Failed to upload images' });
+    res.status(500).json({ error: 'Failed to upload images: ' + error.message });
   }
 });
 
