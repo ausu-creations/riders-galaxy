@@ -31,9 +31,6 @@ export default function FiltersSidebar({
   setSelectedBrands,
   priceRange = { min: 0, max: 0 },
   setPriceRange,
-  sortBy,
-  setSortBy,
-  clearFilters,
 }) {
   function toggleCategory(cat) {
     if (selectedCategories.includes(cat)) {
@@ -92,23 +89,8 @@ export default function FiltersSidebar({
       </div>
 
       <div className="mb-4">
-        <h5 className="mb-3">Price Range</h5>
-        <DoubleThumbSlider min={0} max={5000} values={priceRange} onChange={(vals) => setPriceRange(vals)} />
-      </div>
-
-      <div className="mb-4">
-        <h5 className="mb-3">Sort By</h5>
-        <select className="form-select form-select-sm" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-          <option value="newest">Newest</option>
-          <option value="price-asc">Price: Low to High</option>
-          <option value="price-desc">Price: High to Low</option>
-        </select>
-      </div>
-
-      <div>
-        <button className="btn btn-link p-0" onClick={clearFilters}>
-          Clear filters
-        </button>
+        <h5 className="mb-3">Price Range (INR)</h5>
+        <DoubleThumbSlider min={50} max={89999} values={priceRange} onChange={(vals) => setPriceRange(vals)} />
       </div>
     </aside>
   );

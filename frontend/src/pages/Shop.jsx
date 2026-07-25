@@ -32,7 +32,7 @@ export default function Shop() {
   const { products: productsData } = useProducts();
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
-  const [priceRange, setPriceRange] = useState({ min: 0, max: 10000 });
+  const [priceRange, setPriceRange] = useState({ min: 50, max: 89999 });
   const [sortBy, setSortBy] = useState("newest");
   const [viewMode, setViewMode] = useState("grid"); // grid or list
   const [searchParams, setSearchParams] = useSearchParams();
@@ -45,16 +45,6 @@ export default function Shop() {
   const brands = useMemo(() => {
     return DEFAULT_BRANDS;
   }, []);
-
-  useEffect(() => {
-    // initialize priceRange from data
-    if (productsData.length > 0) {
-      const prices = productsData.map((p) => p.price || 0);
-      const min = Math.min(...prices);
-      const max = Math.max(...prices);
-      setPriceRange({ min, max });
-    }
-  }, [productsData]);
 
   useEffect(() => {
     const categoryParam = searchParams.get("category");
@@ -136,9 +126,8 @@ export default function Shop() {
   function clearFilters() {
     setSelectedCategories([]);
     setSelectedBrands([]);
-    // reset priceRange to data bounds
-    const prices = productsData.map((p) => p.price || 0);
-    setPriceRange({ min: Math.min(...prices), max: Math.max(...prices) });
+    // reset priceRange to default values
+    setPriceRange({ min: 50, max: 89999 });
     setSortBy("newest");
     setSearchParams({});
   }
@@ -241,9 +230,6 @@ export default function Shop() {
                 setSelectedBrands={setSelectedBrands}
                 priceRange={priceRange}
                 setPriceRange={setPriceRange}
-                sortBy={sortBy}
-                setSortBy={setSortBy}
-                clearFilters={clearFilters}
               />
             </div>
           </div>

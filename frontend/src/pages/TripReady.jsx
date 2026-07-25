@@ -9,7 +9,7 @@ import productsData from "../data/products";
 export default function TripReady() {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
-  const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
+  const [priceRange, setPriceRange] = useState({ min: 50, max: 89999 });
   const [sortBy, setSortBy] = useState("newest");
   const [searchParams, setSearchParams] = useSearchParams();
   const search = searchParams.get("q") || "";
@@ -25,13 +25,6 @@ export default function TripReady() {
 
   const brands = useMemo(() => {
     return Array.from(new Set(tripReadyProducts.map((p) => p.brand).filter(Boolean)));
-  }, [tripReadyProducts]);
-
-  useEffect(() => {
-    const prices = tripReadyProducts.map((p) => p.price || 0);
-    const min = Math.min(...prices);
-    const max = Math.max(...prices);
-    setPriceRange({ min, max });
   }, [tripReadyProducts]);
 
   useEffect(() => {
@@ -88,8 +81,7 @@ export default function TripReady() {
   function clearFilters() {
     setSelectedCategories([]);
     setSelectedBrands([]);
-    const prices = tripReadyProducts.map((p) => p.price || 0);
-    setPriceRange({ min: Math.min(...prices), max: Math.max(...prices) });
+    setPriceRange({ min: 50, max: 89999 });
     setSortBy("newest");
     setSearchParams({});
   }
@@ -112,9 +104,6 @@ export default function TripReady() {
               setSelectedBrands={setSelectedBrands}
               priceRange={priceRange}
               setPriceRange={setPriceRange}
-              sortBy={sortBy}
-              setSortBy={setSortBy}
-              clearFilters={clearFilters}
             />
           </div>
           <div className="col-md-9">

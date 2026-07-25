@@ -31,7 +31,7 @@ export default function CartDrawer() {
                   <img src={item.image} alt={item.title} className="cart-item-image" />
                   <div className="cart-item-details">
                     <p className="cart-item-title">{item.title}</p>
-                    <p className="text-muted">${item.price.toFixed(2)}</p>
+                    <p className="text-muted">₹{item.price.toFixed(2)}</p>
                     <div className="cart-qty-control">
                       <button className="btn btn-outline-secondary btn-sm" onClick={() => setQuantity(item.id, item.quantity - 1)}>-</button>
                       <span>{item.quantity}</span>
@@ -50,7 +50,7 @@ export default function CartDrawer() {
         <div className="cart-drawer-footer">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <strong>Total</strong>
-            <strong>${total.toFixed(2)}</strong>
+            <strong>₹{total.toFixed(2)}</strong>
           </div>
           <Link to="/checkout" className="btn btn-primary w-100 mb-2" onClick={closeCart}>
             Checkout
