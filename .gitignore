@@ -28,3 +28,11 @@ Thumbs.db
 *.ntvs*
 *.njsproj
 *.sln
+
+# Build directories (commented out for GitHub Pages main branch deployment)
+# frontend/dist/
+# assets/
+# index.html
+# favicon.svg
+# icons.svg
+# .nojekyll

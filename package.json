@@ -8,7 +8,8 @@
     "dev:frontend": "cd frontend && npm run dev",
     "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
     "start:backend": "cd backend && npm start",
-    "start:frontend": "cd frontend && npm run build && npm run preview"
+    "start:frontend": "cd frontend && npm run build && npm run preview",
+    "deploy": "cd frontend && npm run build && cd .. && powershell -Command \"Copy-Item -Path 'frontend\\dist\\*' -Destination '.' -Recurse -Force; if (-not (Test-Path '.nojekyll')) { New-Item -Path '.nojekyll' -ItemType File }\""
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
