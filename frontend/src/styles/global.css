@@ -1124,8 +1124,76 @@ button.action-item:hover {
   text-align: center;
 }
 
-.size-option:not(.disabled) .stock-count {
-  background-color: var(--theme-accent-blue);
+/* Shop Page Styles */
+.shop-hero {
+  position: relative;
+}
+
+.shop-sidebar {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.product-card-grid:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.product-card-grid:hover .product-actions {
+  bottom: 0;
+}
+
+.product-card-grid:hover img {
+  transform: scale(1.05);
+}
+
+.product-card-list:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+
+.view-toggle {
+  transition: all 0.2s ease;
+}
+
+.view-toggle:hover {
+  background: #f0f0f0;
+}
+
+.view-toggle.active {
+  background: #1a1a2e;
+  color: #fff;
+}
+
+.no-products {
+  padding: 60px 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.breadcrumb-item a:hover {
+  color: #007bff !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .shop-hero {
+    padding: 40px 0;
+  }
+  
+  .shop-hero h1 {
+    font-size: 1.8rem !important;
+  }
+  
+  .product-card-list {
+    flex-direction: column;
+  }
+  
+  .product-card-list .col-md-4,
+  .product-card-list .col-md-8 {
+    width: 100%;
+  }
 }
 
 .size-chart-link {
