@@ -25,6 +25,7 @@ const DEFAULT_BRANDS = ["Axor", "DSG", "Korda", "LS2", "Lone Ranger", "Raida", "
 
 export default function FiltersSidebar({
   categories = DEFAULT_CATEGORIES,
+  brands = DEFAULT_BRANDS,
   selectedCategories = [],
   setSelectedCategories,
   selectedBrands = [],
@@ -63,7 +64,7 @@ export default function FiltersSidebar({
       <div className="mb-4 filters-sidebar-group">
         <h5 className="mb-3">Products</h5>
         <ul className="list-unstyled">
-          {categories.map((cat) => (
+          {categories.filter(cat => cat !== "Others").map((cat) => (
             <li key={cat} className="mb-2">
               <label className="form-check">
                 <input className="form-check-input" type="checkbox" checked={selectedCategories.includes(cat)} onChange={() => toggleCategory(cat)} />
@@ -71,13 +72,21 @@ export default function FiltersSidebar({
               </label>
             </li>
           ))}
+          {categories.includes("Others") && (
+            <li key="Others" className="mb-2">
+              <label className="form-check">
+                <input className="form-check-input" type="checkbox" checked={selectedCategories.includes("Others")} onChange={() => toggleCategory("Others")} />
+                <span className="form-check-label ms-2">Others</span>
+              </label>
+            </li>
+          )}
         </ul>
       </div>
 
       <div className="mb-4">
         <h5 className="mb-3">Brands</h5>
         <ul className="list-unstyled">
-          {(DEFAULT_BRANDS || []).map((b) => (
+          {(brands || []).filter(brand => brand !== "Others").map((b) => (
             <li key={b} className="mb-2">
               <label className="form-check">
                 <input className="form-check-input" type="checkbox" checked={selectedBrands.includes(b)} onChange={() => toggleBrand(b)} />
@@ -85,6 +94,14 @@ export default function FiltersSidebar({
               </label>
             </li>
           ))}
+          {(brands || []).includes("Others") && (
+            <li key="Others" className="mb-2">
+              <label className="form-check">
+                <input className="form-check-input" type="checkbox" checked={selectedBrands.includes("Others")} onChange={() => toggleBrand("Others")} />
+                <span className="form-check-label ms-2">Others</span>
+              </label>
+            </li>
+          )}
         </ul>
       </div>
 

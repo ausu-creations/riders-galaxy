@@ -24,6 +24,12 @@ function DashboardContent() {
   });
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadedImages, setUploadedImages] = useState([]);
+  
+  // Dynamic brands and categories from existing products
+  const [availableBrands, setAvailableBrands] = useState([]);
+  const [availableCategories, setAvailableCategories] = useState([]);
+  const [showOtherBrand, setShowOtherBrand] = useState(false);
+  const [showOtherCategory, setShowOtherCategory] = useState(false);
 
   // Orders state
   const [orders, setOrders] = useState([]);
@@ -54,6 +60,28 @@ function DashboardContent() {
       fetchUsers();
     }
   }, [activeTab]);
+
+  // Extract unique brands and categories from products
+  useEffect(() => {
+    const uniqueBrands = [...new Set(products.map(p => p.brand).filter(Boolean))].sort();
+    const uniqueCategories = [...new Set(products.map(p => p.category).filter(Boolean))].sort();
+    
+    // Ensure "Others" is always at the end if present
+    const brandOthersIndex = uniqueBrands.indexOf("Others");
+    if (brandOthersIndex > -1) {
+      uniqueBrands.splice(brandOthersIndex, 1);
+      uniqueBrands.push("Others");
+    }
+    
+    const categoryOthersIndex = uniqueCategories.indexOf("Others");
+    if (categoryOthersIndex > -1) {
+      uniqueCategories.splice(categoryOthersIndex, 1);
+      uniqueCategories.push("Others");
+    }
+    
+    setAvailableBrands(uniqueBrands);
+    setAvailableCategories(uniqueCategories);
+  }, [products]);
 
   const fetchOrders = async () => {
     try {
@@ -126,6 +154,8 @@ function DashboardContent() {
     });
     setUploadedImages([]);
     setShowProductForm(false);
+    setShowOtherBrand(false);
+    setShowOtherCategory(false);
   };
 
   // Image upload handler (multiple images)
@@ -205,6 +235,13 @@ function DashboardContent() {
       });
     }
     
+    // Check if brand or category is not in available lists
+    const brandInList = availableBrands.includes(product.brand);
+    const categoryInList = availableCategories.includes(product.category);
+    
+    setShowOtherBrand(!brandInList && product.brand);
+    setShowOtherCategory(!categoryInList && product.category);
+    
     setProductFormData({
       title: product.title,
       price: product.price,
@@ -238,6 +275,8 @@ function DashboardContent() {
       sizeStock: {},
     });
     setUploadedImages([]);
+    setShowOtherBrand(false);
+    setShowOtherCategory(false);
   };
 
   // Order handlers
@@ -417,22 +456,75 @@ function DashboardContent() {
                   <div className="row">
                     <div className="col-md-6 mb-3">
                       <label className="form-label">Category</label>
-                      <input
-                        type="text"
+                      <select
                         className="form-control"
                         value={productFormData.category}
-                        onChange={(e) => setProductFormData({ ...productFormData, category: e.target.value })}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === 'other') {
+                            setShowOtherCategory(true);
+                            setProductFormData({ ...productFormData, category: '' });
+                          } else {
+                            setShowOtherCategory(false);
+                            setProductFormData({ ...productFormData, category: value });
+                          }
+                        }}
                         required
-                      />
+                      >
+                        <option value="">Select Category</option>
+                        {availableCategories.filter(cat => cat !== "Others").map(cat => (
+                          <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                        {availableCategories.includes("Others") && (
+                          <option key="Others" value="Others">Others</option>
+                        )}
+                        <option value="other">Other (add new)</option>
+                      </select>
+                      {showOtherCategory && (
+                        <input
+                          type="text"
+                          className="form-control mt-2"
+                          placeholder="Enter new category"
+                          value={productFormData.category}
+                          onChange={(e) => setProductFormData({ ...productFormData, category: e.target.value })}
+                          required
+                        />
+                      )}
                     </div>
                     <div className="col-md-6 mb-3">
                       <label className="form-label">Brand</label>
-                      <input
-                        type="text"
+                      <select
                         className="form-control"
                         value={productFormData.brand}
-                        onChange={(e) => setProductFormData({ ...productFormData, brand: e.target.value })}
-                      />
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === 'other') {
+                            setShowOtherBrand(true);
+                            setProductFormData({ ...productFormData, brand: '' });
+                          } else {
+                            setShowOtherBrand(false);
+                            setProductFormData({ ...productFormData, brand: value });
+                          }
+                        }}
+                      >
+                        <option value="">Select Brand</option>
+                        {availableBrands.filter(brand => brand !== "Others").map(brand => (
+                          <option key={brand} value={brand}>{brand}</option>
+                        ))}
+                        {availableBrands.includes("Others") && (
+                          <option key="Others" value="Others">Others</option>
+                        )}
+                        <option value="other">Other (add new)</option>
+                      </select>
+                      {showOtherBrand && (
+                        <input
+                          type="text"
+                          className="form-control mt-2"
+                          placeholder="Enter new brand"
+                          value={productFormData.brand}
+                          onChange={(e) => setProductFormData({ ...productFormData, brand: e.target.value })}
+                        />
+                      )}
                     </div>
                   </div>
 

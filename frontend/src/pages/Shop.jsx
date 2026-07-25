@@ -39,12 +39,30 @@ export default function Shop() {
   const search = searchParams.get("q") || "";
 
   const categories = useMemo(() => {
-    return DEFAULT_CATEGORIES;
-  }, []);
+    // Get unique categories from products and merge with defaults
+    const productCategories = [...new Set(productsData.map(p => p.category).filter(Boolean))];
+    const allCategories = [...new Set([...DEFAULT_CATEGORIES, ...productCategories])].sort();
+    // Ensure "Others" is always at the end
+    const othersIndex = allCategories.indexOf("Others");
+    if (othersIndex > -1) {
+      allCategories.splice(othersIndex, 1);
+      allCategories.push("Others");
+    }
+    return allCategories;
+  }, [productsData]);
 
   const brands = useMemo(() => {
-    return DEFAULT_BRANDS;
-  }, []);
+    // Get unique brands from products and merge with defaults
+    const productBrands = [...new Set(productsData.map(p => p.brand).filter(Boolean))];
+    const allBrands = [...new Set([...DEFAULT_BRANDS, ...productBrands])].sort();
+    // Ensure "Others" is always at the end
+    const othersIndex = allBrands.indexOf("Others");
+    if (othersIndex > -1) {
+      allBrands.splice(othersIndex, 1);
+      allBrands.push("Others");
+    }
+    return allBrands;
+  }, [productsData]);
 
   useEffect(() => {
     const categoryParam = searchParams.get("category");
@@ -63,7 +81,7 @@ export default function Shop() {
                                        brandParam.toLowerCase().includes(b.toLowerCase()));
       if (matched) setSelectedBrands([matched]);
     }
-    // only run on mount / when params or categories change
+    // only run on mount / when params or categories/brands change
   }, [searchParams, categories, brands]);
 
   const filtered = useMemo(() => {
@@ -80,9 +98,9 @@ export default function Shop() {
           const selNorm = normalize(sel);
           const productCategory = normalize(p.category);
           
-          // Handle "Others" case - include products not in DEFAULT_CATEGORIES
+          // Handle "Others" case - include products not in the current categories list
           if (selNorm === "others") {
-            return !DEFAULT_CATEGORIES.some(defaultCat => normalize(defaultCat) === productCategory);
+            return !categories.some(cat => normalize(cat) === productCategory);
           }
           
           // Exact match or very close match (handle plural/singular)
@@ -96,9 +114,9 @@ export default function Shop() {
       // brand filter
       if (selectedBrands.length) {
         const ok = selectedBrands.some((sel) => {
-          // Handle "Others" case - include products not in DEFAULT_BRANDS
+          // Handle "Others" case - include products not in the current brands list
           if (sel === "Others") {
-            return !DEFAULT_BRANDS.includes(p.brand);
+            return !brands.includes(p.brand);
           }
           return sel === p.brand;
         });
@@ -121,7 +139,7 @@ export default function Shop() {
     if (sortBy === "name-asc") return res.sort((a, b) => a.title.localeCompare(b.title));
     if (sortBy === "name-desc") return res.sort((a, b) => b.title.localeCompare(a.title));
     return res.sort((a, b) => (b.createdAt || b.id) - (a.createdAt || a.id));
-  }, [selectedCategories, selectedBrands, priceRange, sortBy, search, productsData]);
+  }, [selectedCategories, selectedBrands, priceRange, sortBy, search, productsData, categories, brands]);
 
   function clearFilters() {
     setSelectedCategories([]);
@@ -224,6 +242,7 @@ export default function Shop() {
               
               <FiltersSidebar
                 categories={categories}
+                brands={brands}
                 selectedCategories={selectedCategories}
                 setSelectedCategories={setSelectedCategories}
                 selectedBrands={selectedBrands}
