@@ -12,7 +12,6 @@ permissions:
 
 jobs:
   deploy:
-    if: false  # Disabled - using gh-pages package instead
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -27,7 +26,7 @@ jobs:
 
       - name: Install frontend dependencies
         working-directory: frontend
-        run: npm ci
+        run: npm install
 
       - name: Build frontend
         working-directory: frontend
@@ -35,6 +34,7 @@ jobs:
 
       - name: Create nojekyll marker
         run: touch frontend/dist/.nojekyll
+        shell: bash
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
