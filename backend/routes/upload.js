@@ -8,7 +8,7 @@ const { authenticate, requireAdmin } = require('../middleware/auth');
 // Configure multer for file uploads (version 2.x)
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadDir = path.join(__dirname, '../../frontend/src/assets/uploads');
+    const uploadDir = path.join(__dirname, '../../frontend/public/uploads');
     
     // Create directory if it doesn't exist
     if (!fs.existsSync(uploadDir)) {
@@ -52,8 +52,14 @@ router.post('/image', authenticate, requireAdmin, upload.single('image'), (req, 
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    // Return the relative path for frontend access
-    const imageUrl = `/riders-galaxy/assets/uploads/${req.file.filename}`;
+    // Return URL that works with both local development and production
+    const isProduction = process.env.NODE_ENV === 'production';
+    let imageUrl;
+    if (isProduction) {
+      imageUrl = `${process.env.BACKEND_URL || 'https://riders-galaxy-backend.onrender.com'}/riders-galaxy/uploads/${req.file.filename}`;
+    } else {
+      imageUrl = `/riders-galaxy/uploads/${req.file.filename}`;
+    }
     
     res.json({
       success: true,
@@ -73,7 +79,18 @@ router.post('/images', authenticate, requireAdmin, upload.array('images', 10), (
       return res.status(400).json({ error: 'No files uploaded' });
     }
 
-    const imageUrls = req.files.map(file => `/riders-galaxy/assets/uploads/${file.filename}`);
+    // Return full URLs that work with the frontend's base path
+    const imageUrls = req.files.map(file => {
+      // For local development, use relative path that works with Vite base config
+      // For production, use full backend URL
+      const isProduction = process.env.NODE_ENV === 'production';
+      if (isProduction) {
+        return `${process.env.BACKEND_URL || 'https://riders-galaxy-backend.onrender.com'}/riders-galaxy/uploads/${file.filename}`;
+      } else {
+        // For local development, return the path as-is since Vite handles the base path
+        return `/riders-galaxy/uploads/${file.filename}`;
+      }
+    });
     
     res.json({
       success: true,
@@ -90,7 +107,7 @@ router.post('/images', authenticate, requireAdmin, upload.array('images', 10), (
 router.delete('/image/:filename', authenticate, requireAdmin, (req, res) => {
   try {
     const filename = req.params.filename;
-    const filePath = path.join(__dirname, '../../frontend/src/assets/uploads', filename);
+    const filePath = path.join(__dirname, '../../frontend/public/uploads', filename);
     
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);

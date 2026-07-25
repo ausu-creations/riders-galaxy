@@ -40,3 +40,5 @@ Thumbs.db
 # Uploads directory (keep directory but ignore individual files)
 frontend/src/assets/uploads/*
 !frontend/src/assets/uploads/.gitkeep
+frontend/public/uploads/*
+!frontend/public/uploads/.gitkeep
