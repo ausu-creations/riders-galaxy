@@ -19,11 +19,11 @@ function DashboardContent() {
   const [editingProduct, setEditingProduct] = useState(null);
   const [productFormData, setProductFormData] = useState({
     title: "", price: "", category: "", brand: "", description: "",
-    sizes: "", colors: "", tripReady: false, image: "", images: "", stock: 0,
+    sizes: "", colors: "", tripReady: false, image: "", images: [], stock: 0,
     sizeStock: {}, // New: individual stock for each size
   });
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [uploadedImageUrl, setUploadedImageUrl] = useState('');
+  const [uploadedImages, setUploadedImages] = useState([]);
 
   // Orders state
   const [orders, setOrders] = useState([]);
@@ -106,8 +106,8 @@ function DashboardContent() {
       sizes: sizes,
       colors: productFormData.colors.split(",").map(c => c.trim()).filter(c => c),
       tripReady: productFormData.tripReady,
-      image: uploadedImageUrl || productFormData.image || "https://via.placeholder.com/300",
-      images: productFormData.images.split(",").map(img => img.trim()).filter(img => img),
+      image: productFormData.images[0] || "https://via.placeholder.com/300", // Use first image as main
+      images: productFormData.images,
       stock: parseInt(productFormData.stock) || 0,
       sizeStock: sizeStock,
     };
@@ -121,40 +121,58 @@ function DashboardContent() {
 
     setProductFormData({
       title: "", price: "", category: "", brand: "", description: "",
-      sizes: "", colors: "", tripReady: false, image: "", images: "", stock: 0,
+      sizes: "", colors: "", tripReady: false, image: "", images: [], stock: 0,
       sizeStock: {},
     });
-    setUploadedImageUrl('');
+    setUploadedImages([]);
     setShowProductForm(false);
   };
 
-  // Image upload handler
+  // Image upload handler (multiple images)
   const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
 
     setUploadingImage(true);
     
     try {
       const formData = new FormData();
-      formData.append('image', file);
+      files.forEach(file => {
+        formData.append('images', file);
+      });
 
-      const response = await api.post('/upload/image', formData, {
+      const response = await api.post('/upload/images', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
       if (response.success) {
-        setUploadedImageUrl(response.imageUrl);
-        setProductFormData({ ...productFormData, image: response.imageUrl });
+        const newImages = response.imageUrls;
+        setUploadedImages([...uploadedImages, ...newImages]);
+        setProductFormData({ 
+          ...productFormData, 
+          images: [...productFormData.images, ...newImages],
+          image: response.imageUrls[0] // Set first image as main image if not set
+        });
       }
     } catch (error) {
       console.error('Image upload error:', error);
-      alert('Failed to upload image');
+      alert('Failed to upload images');
     } finally {
       setUploadingImage(false);
     }
+  };
+
+  // Remove uploaded image
+  const handleRemoveImage = (index) => {
+    const newImages = uploadedImages.filter((_, i) => i !== index);
+    setUploadedImages(newImages);
+    setProductFormData({ 
+      ...productFormData, 
+      images: newImages,
+      image: newImages[0] || "" // Update main image if needed
+    });
   };
 
   // Handle size stock change
@@ -189,11 +207,11 @@ function DashboardContent() {
       colors: product.colors ? product.colors.join(", ") : "",
       tripReady: product.tripReady || false,
       image: product.image,
-      images: product.images ? product.images.join(", ") : "",
+      images: product.images || [],
       stock: product.stock || 0,
       sizeStock: sizeStockObj,
     });
-    setUploadedImageUrl(product.image || '');
+    setUploadedImages(product.images || []);
     setShowProductForm(true);
   };
 
@@ -208,10 +226,10 @@ function DashboardContent() {
     setEditingProduct(null);
     setProductFormData({
       title: "", price: "", category: "", brand: "", description: "",
-      sizes: "", colors: "", tripReady: false, image: "", images: "", stock: 0,
+      sizes: "", colors: "", tripReady: false, image: "", images: [], stock: 0,
       sizeStock: {},
     });
-    setUploadedImageUrl('');
+    setUploadedImages([]);
   };
 
   // Order handlers
@@ -482,8 +500,8 @@ function DashboardContent() {
                   )}
 
                   <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Main Image</label>
+                    <div className="col-md-12 mb-3">
+                      <label className="form-label">Product Images</label>
                       <div className="d-flex gap-2">
                         <input
                           type="file"
@@ -491,44 +509,48 @@ function DashboardContent() {
                           onChange={handleImageUpload}
                           accept="image/*"
                           disabled={uploadingImage}
+                          multiple
                         />
                         {uploadingImage && (
                           <span className="text-muted">Uploading...</span>
                         )}
                       </div>
-                      {uploadedImageUrl && (
-                        <div className="mt-2">
-                          <img 
-                            src={uploadedImageUrl} 
-                            alt="Preview" 
-                            style={{ maxWidth: '100px', maxHeight: '100px' }}
-                            className="border rounded"
-                          />
+                      
+                      {/* Image Previews */}
+                      {uploadedImages.length > 0 && (
+                        <div className="mt-3">
+                          <label className="form-label small">Uploaded Images:</label>
+                          <div className="d-flex gap-2 flex-wrap">
+                            {uploadedImages.map((imageUrl, index) => (
+                              <div key={index} className="position-relative">
+                                <img
+                                  src={imageUrl}
+                                  alt={`Preview ${index + 1}`}
+                                  style={{ 
+                                    maxWidth: '100px', 
+                                    maxHeight: '100px',
+                                    objectFit: 'cover'
+                                  }}
+                                  className="border rounded"
+                                />
+                                <button
+                                  type="button"
+                                  className="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+                                  onClick={() => handleRemoveImage(index)}
+                                  style={{ 
+                                    width: '20px', 
+                                    height: '20px', 
+                                    padding: '0',
+                                    borderRadius: '50%'
+                                  }}
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       )}
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Image URL (optional)</label>
-                      <input
-                        type="url"
-                        className="form-control"
-                        value={productFormData.image}
-                        onChange={(e) => setProductFormData({ ...productFormData, image: e.target.value })}
-                        placeholder="https://example.com/image.jpg"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Additional Images (comma-separated)</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={productFormData.images}
-                        onChange={(e) => setProductFormData({ ...productFormData, images: e.target.value })}
-                        placeholder="url1, url2, url3"
-                      />
                     </div>
                   </div>
 

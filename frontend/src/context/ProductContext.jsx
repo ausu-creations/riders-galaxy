@@ -37,7 +37,9 @@ export const ProductProvider = ({ children }) => {
       ...product,
       id: Date.now(), // Simple ID generation
       // Convert sizeStock object to array for MongoDB compatibility
-      sizeStock: product.sizeStock ? Object.entries(product.sizeStock).map(([size, stock]) => ({ size, stock })) : []
+      sizeStock: product.sizeStock ? Object.entries(product.sizeStock).map(([size, stock]) => ({ size, stock })) : [],
+      // Ensure images is an array
+      images: Array.isArray(product.images) ? product.images : []
     };
     setProducts([...products, newProduct]);
   };
@@ -46,7 +48,9 @@ export const ProductProvider = ({ children }) => {
     // Convert sizeStock object to array for MongoDB compatibility
     const productWithSizeStock = {
       ...updatedProduct,
-      sizeStock: updatedProduct.sizeStock ? Object.entries(updatedProduct.sizeStock).map(([size, stock]) => ({ size, stock })) : []
+      sizeStock: updatedProduct.sizeStock ? Object.entries(updatedProduct.sizeStock).map(([size, stock]) => ({ size, stock })) : [],
+      // Ensure images is an array
+      images: Array.isArray(updatedProduct.images) ? updatedProduct.images : []
     };
     setProducts(products.map((p) => (p.id === id ? { ...p, ...productWithSizeStock } : p)));
   };
