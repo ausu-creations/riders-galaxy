@@ -9,7 +9,7 @@
     "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
     "start:backend": "cd backend && npm start",
     "start:frontend": "cd frontend && npm run build && npm run preview",
-    "deploy": "cd frontend && npm run build && cd .. && powershell -Command \"Copy-Item -Path 'frontend\\dist\\*' -Destination '.' -Recurse -Force; if (-not (Test-Path '.nojekyll')) { New-Item -Path '.nojekyll' -ItemType File }\" && git add . && git commit -m \"Deploy to GitHub Pages\" && git push origin main"
+    "deploy": "cd frontend && npm run build && cd .. && powershell -Command \"Copy-Item -Path 'frontend\\dist\\*' -Destination '.' -Recurse -Force; if (-not (Test-Path '.nojekyll')) { New-Item -Path '.nojekyll' -ItemType File }\" && git add -A && git commit -m \"Deploy to GitHub Pages\" && git push origin main"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
