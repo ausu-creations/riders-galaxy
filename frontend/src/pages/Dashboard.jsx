@@ -9,7 +9,7 @@ import Footer from "../components/layout/footer";
 
 function DashboardContent() {
   const navigate = useNavigate();
-  const { products, addProduct, updateProduct, deleteProduct } = useProducts();
+  const { products, addProduct, updateProduct, deleteProduct, loading: productsLoading } = useProducts();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('products');
   const [loading, setLoading] = useState(false);
@@ -117,7 +117,7 @@ function DashboardContent() {
   };
 
   // Product handlers
-  const handleProductSubmit = (e) => {
+  const handleProductSubmit = async (e) => {
     e.preventDefault();
     
     const sizes = productFormData.sizes.split(",").map(s => s.trim()).filter(s => s);
@@ -143,22 +143,27 @@ function DashboardContent() {
       sizeStock: sizeStock,
     };
 
-    if (editingProduct) {
-      updateProduct(editingProduct.id, productData);
-      setEditingProduct(null);
-    } else {
-      addProduct(productData);
-    }
+    try {
+      if (editingProduct) {
+        await updateProduct(editingProduct.id, productData);
+        setEditingProduct(null);
+      } else {
+        await addProduct(productData);
+      }
 
-    setProductFormData({
-      title: "", price: "", category: "", brand: "", description: "",
-      sizes: "", colors: "", tripReady: false, image: "", images: [], stock: 0,
-      sizeStock: {},
-    });
-    setUploadedImages([]);
-    setShowProductForm(false);
-    setShowOtherBrand(false);
-    setShowOtherCategory(false);
+      setProductFormData({
+        title: "", price: "", category: "", brand: "", description: "",
+        sizes: "", colors: "", tripReady: false, image: "", images: [], stock: 0,
+        sizeStock: {},
+      });
+      setUploadedImages([]);
+      setShowProductForm(false);
+      setShowOtherBrand(false);
+      setShowOtherCategory(false);
+    } catch (error) {
+      console.error('Error saving product:', error);
+      alert('Failed to save product. Please try again.');
+    }
   };
 
   // Image upload handler (multiple images)
@@ -296,9 +301,14 @@ function DashboardContent() {
     setShowProductForm(true);
   };
 
-  const handleDeleteProduct = (id) => {
+  const handleDeleteProduct = async (id) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
-      deleteProduct(id);
+      try {
+        await deleteProduct(id);
+      } catch (error) {
+        console.error('Error deleting product:', error);
+        alert('Failed to delete product. Please try again.');
+      }
     }
   };
 
@@ -458,300 +468,309 @@ function DashboardContent() {
             </button>
           </div>
 
-          {showProductForm && (
-            <div className="card mb-4 shadow">
-              <div className="card-header bg-primary text-white">
-                <h5 className="mb-0">{editingProduct ? "Edit Product" : "Add New Product"}</h5>
+          {productsLoading ? (
+            <div className="text-center py-5">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
               </div>
-              <div className="card-body">
-                <form onSubmit={handleProductSubmit}>
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Product Title</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={productFormData.title}
-                        onChange={(e) => setProductFormData({ ...productFormData, title: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Price (₹)</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        className="form-control"
-                        value={productFormData.price}
-                        onChange={(e) => setProductFormData({ ...productFormData, price: e.target.value })}
-                        required
-                      />
-                    </div>
+              <p className="mt-3">Loading products...</p>
+            </div>
+          ) : (
+            <>
+              {showProductForm && (
+                <div className="card mb-4 shadow">
+                  <div className="card-header bg-primary text-white">
+                    <h5 className="mb-0">{editingProduct ? "Edit Product" : "Add New Product"}</h5>
                   </div>
+                  <div className="card-body">
+                    <form onSubmit={handleProductSubmit}>
+                      <div className="row">
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">Product Title</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={productFormData.title}
+                            onChange={(e) => setProductFormData({ ...productFormData, title: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">Price (₹)</label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            className="form-control"
+                            value={productFormData.price}
+                            onChange={(e) => setProductFormData({ ...productFormData, price: e.target.value })}
+                            required
+                          />
+                        </div>
+                      </div>
 
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Category</label>
-                      <select
-                        className="form-control"
-                        value={productFormData.category}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          if (value === 'other') {
-                            setShowOtherCategory(true);
-                            setProductFormData({ ...productFormData, category: '' });
-                          } else {
-                            setShowOtherCategory(false);
-                            setProductFormData({ ...productFormData, category: value });
-                          }
-                        }}
-                        required
-                      >
-                        <option value="">Select Category</option>
-                        {availableCategories.filter(cat => cat !== "Others").map(cat => (
-                          <option key={cat} value={cat}>{cat}</option>
-                        ))}
-                        {availableCategories.includes("Others") && (
-                          <option key="Others" value="Others">Others</option>
-                        )}
-                        <option value="other">Other (add new)</option>
-                      </select>
-                      {showOtherCategory && (
-                        <input
-                          type="text"
-                          className="form-control mt-2"
-                          placeholder="Enter new category"
-                          value={productFormData.category}
-                          onChange={(e) => setProductFormData({ ...productFormData, category: e.target.value })}
+                      <div className="row">
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">Category</label>
+                          <select
+                            className="form-control"
+                            value={productFormData.category}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (value === 'other') {
+                                setShowOtherCategory(true);
+                                setProductFormData({ ...productFormData, category: '' });
+                              } else {
+                                setShowOtherCategory(false);
+                                setProductFormData({ ...productFormData, category: value });
+                              }
+                            }}
+                            required
+                          >
+                            <option value="">Select Category</option>
+                            {availableCategories.filter(cat => cat !== "Others").map(cat => (
+                              <option key={cat} value={cat}>{cat}</option>
+                            ))}
+                            {availableCategories.includes("Others") && (
+                              <option key="Others" value="Others">Others</option>
+                            )}
+                            <option value="other">Other (add new)</option>
+                          </select>
+                          {showOtherCategory && (
+                            <input
+                              type="text"
+                              className="form-control mt-2"
+                              placeholder="Enter new category"
+                              value={productFormData.category}
+                              onChange={(e) => setProductFormData({ ...productFormData, category: e.target.value })}
+                              required
+                            />
+                          )}
+                        </div>
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">Brand</label>
+                          <select
+                            className="form-control"
+                            value={productFormData.brand}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (value === 'other') {
+                                setShowOtherBrand(true);
+                                setProductFormData({ ...productFormData, brand: '' });
+                              } else {
+                                setShowOtherBrand(false);
+                                setProductFormData({ ...productFormData, brand: value });
+                              }
+                            }}
+                          >
+                            <option value="">Select Brand</option>
+                            {availableBrands.filter(brand => brand !== "Others").map(brand => (
+                              <option key={brand} value={brand}>{brand}</option>
+                            ))}
+                            {availableBrands.includes("Others") && (
+                              <option key="Others" value="Others">Others</option>
+                            )}
+                            <option value="other">Other (add new)</option>
+                          </select>
+                          {showOtherBrand && (
+                            <input
+                              type="text"
+                              className="form-control mt-2"
+                              placeholder="Enter new brand"
+                              value={productFormData.brand}
+                              onChange={(e) => setProductFormData({ ...productFormData, brand: e.target.value })}
+                            />
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mb-3">
+                        <label className="form-label">Description</label>
+                        <textarea
+                          className="form-control"
+                          rows="3"
+                          value={productFormData.description}
+                          onChange={(e) => setProductFormData({ ...productFormData, description: e.target.value })}
                           required
                         />
-                      )}
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Brand</label>
-                      <select
-                        className="form-control"
-                        value={productFormData.brand}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          if (value === 'other') {
-                            setShowOtherBrand(true);
-                            setProductFormData({ ...productFormData, brand: '' });
-                          } else {
-                            setShowOtherBrand(false);
-                            setProductFormData({ ...productFormData, brand: value });
-                          }
-                        }}
-                      >
-                        <option value="">Select Brand</option>
-                        {availableBrands.filter(brand => brand !== "Others").map(brand => (
-                          <option key={brand} value={brand}>{brand}</option>
-                        ))}
-                        {availableBrands.includes("Others") && (
-                          <option key="Others" value="Others">Others</option>
-                        )}
-                        <option value="other">Other (add new)</option>
-                      </select>
-                      {showOtherBrand && (
-                        <input
-                          type="text"
-                          className="form-control mt-2"
-                          placeholder="Enter new brand"
-                          value={productFormData.brand}
-                          onChange={(e) => setProductFormData({ ...productFormData, brand: e.target.value })}
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="mb-3">
-                    <label className="form-label">Description</label>
-                    <textarea
-                      className="form-control"
-                      rows="3"
-                      value={productFormData.description}
-                      onChange={(e) => setProductFormData({ ...productFormData, description: e.target.value })}
-                      required
-                    />
-                  </div>
-
-                  <div className="row">
-                    <div className="col-md-4 mb-3">
-                      <label className="form-label">Sizes</label>
-                      <div className="size-checkboxes">
-                        {PREDEFINED_SIZES.map((size) => {
-                          const currentSizes = productFormData.sizes ? productFormData.sizes.split(",").map(s => s.trim()).filter(s => s) : [];
-                          const isChecked = currentSizes.includes(size);
-                          return (
-                            <div key={size} className="form-check form-check-inline">
-                              <input
-                                className="form-check-input"
-                                type="checkbox"
-                                id={`size-${size}`}
-                                checked={isChecked}
-                                onChange={() => handleSizeCheckboxChange(size)}
-                              />
-                              <label className="form-check-label" htmlFor={`size-${size}`}>
-                                {size}
-                              </label>
-                            </div>
-                          );
-                        })}
                       </div>
-                      {/* Show custom sizes input if product has sizes not in predefined list */}
-                      {productFormData.sizes && (() => {
-                        const currentSizes = productFormData.sizes.split(",").map(s => s.trim()).filter(s => s);
-                        const hasCustomSizes = currentSizes.some(size => !PREDEFINED_SIZES.includes(size));
-                        if (hasCustomSizes) {
-                          return (
-                            <div className="mt-2">
-                              <label className="form-label small text-muted">Custom Sizes (comma-separated)</label>
-                              <input
-                                type="text"
-                                className="form-control form-control-sm"
-                                value={currentSizes.filter(size => !PREDEFINED_SIZES.includes(size)).join(", ")}
-                                onChange={(e) => {
-                                  const customSizes = e.target.value.split(",").map(s => s.trim()).filter(s => s);
-                                  const predefinedSelected = PREDEFINED_SIZES.filter(size => currentSizes.includes(size));
-                                  const allSizes = [...predefinedSelected, ...customSizes];
-                                  setProductFormData({ ...productFormData, sizes: allSizes.join(", ") });
-                                }}
-                                placeholder="8, 9, 10"
-                              />
-                            </div>
-                          );
-                        }
-                        return null;
-                      })()}
-                    </div>
-                    <div className="col-md-4 mb-3">
-                      <label className="form-label">Colors (comma-separated)</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={productFormData.colors}
-                        onChange={(e) => setProductFormData({ ...productFormData, colors: e.target.value })}
-                        placeholder="Black, Red, White"
-                      />
-                    </div>
-                    <div className="col-md-4 mb-3">
-                      <label className="form-label">Total Stock</label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={productFormData.stock}
-                        onChange={(e) => setProductFormData({ ...productFormData, stock: e.target.value })}
-                        min="0"
-                        readOnly
-                      />
-                    </div>
-                  </div>
 
-                  {/* Size-wise inventory management */}
-                  {productFormData.sizes && (
-                    <div className="mb-3">
-                      <label className="form-label fw-bold">Size-wise Inventory</label>
                       <div className="row">
-                        {productFormData.sizes.split(",").map((size, index) => {
-                          const trimmedSize = size.trim();
-                          if (!trimmedSize) return null;
-                          return (
-                            <div key={index} className="col-md-3 mb-2">
-                              <label className="form-label small">{trimmedSize} Stock</label>
-                              <input
-                                type="number"
-                                className="form-control"
-                                value={productFormData.sizeStock[trimmedSize] || 0}
-                                onChange={(e) => handleSizeStockChange(trimmedSize, e.target.value)}
-                                min="0"
-                                placeholder="0"
-                              />
-                            </div>
-                          );
-                        })}
+                        <div className="col-md-4 mb-3">
+                          <label className="form-label">Sizes</label>
+                          <div className="size-checkboxes">
+                            {PREDEFINED_SIZES.map((size) => {
+                              const currentSizes = productFormData.sizes ? productFormData.sizes.split(",").map(s => s.trim()).filter(s => s) : [];
+                              const isChecked = currentSizes.includes(size);
+                              return (
+                                <div key={size} className="form-check form-check-inline">
+                                  <input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    id={`size-${size}`}
+                                    checked={isChecked}
+                                    onChange={() => handleSizeCheckboxChange(size)}
+                                  />
+                                  <label className="form-check-label" htmlFor={`size-${size}`}>
+                                    {size}
+                                  </label>
+                                </div>
+                              );
+                            })}
+                          </div>
+                          {/* Show custom sizes input if product has sizes not in predefined list */}
+                          {productFormData.sizes && (() => {
+                            const currentSizes = productFormData.sizes.split(",").map(s => s.trim()).filter(s => s);
+                            const hasCustomSizes = currentSizes.some(size => !PREDEFINED_SIZES.includes(size));
+                            if (hasCustomSizes) {
+                              return (
+                                <div className="mt-2">
+                                  <label className="form-label small text-muted">Custom Sizes (comma-separated)</label>
+                                  <input
+                                    type="text"
+                                    className="form-control form-control-sm"
+                                    value={currentSizes.filter(size => !PREDEFINED_SIZES.includes(size)).join(", ")}
+                                    onChange={(e) => {
+                                      const customSizes = e.target.value.split(",").map(s => s.trim()).filter(s => s);
+                                      const predefinedSelected = PREDEFINED_SIZES.filter(size => currentSizes.includes(size));
+                                      const allSizes = [...predefinedSelected, ...customSizes];
+                                      setProductFormData({ ...productFormData, sizes: allSizes.join(", ") });
+                                    }}
+                                    placeholder="8, 9, 10"
+                                  />
+                                </div>
+                              );
+                            }
+                            return null;
+                          })()}
+                        </div>
+                        <div className="col-md-4 mb-3">
+                          <label className="form-label">Colors (comma-separated)</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={productFormData.colors}
+                            onChange={(e) => setProductFormData({ ...productFormData, colors: e.target.value })}
+                            placeholder="Black, Red, White"
+                          />
+                        </div>
+                        <div className="col-md-4 mb-3">
+                          <label className="form-label">Total Stock</label>
+                          <input
+                            type="number"
+                            className="form-control"
+                            value={productFormData.stock}
+                            onChange={(e) => setProductFormData({ ...productFormData, stock: e.target.value })}
+                            min="0"
+                            readOnly
+                          />
+                        </div>
                       </div>
-                    </div>
-                  )}
 
-                  <div className="row">
-                    <div className="col-md-12 mb-3">
-                      <label className="form-label">Product Images</label>
-                      <div className="d-flex gap-2">
-                        <input
-                          type="file"
-                          className="form-control"
-                          onChange={handleImageUpload}
-                          accept="image/*"
-                          disabled={uploadingImage}
-                          multiple
-                        />
-                        {uploadingImage && (
-                          <span className="text-muted">Uploading...</span>
-                        )}
-                      </div>
-                      
-                      {/* Image Previews */}
-                      {uploadedImages.length > 0 && (
-                        <div className="mt-3">
-                          <label className="form-label small">Uploaded Images:</label>
-                          <div className="d-flex gap-2 flex-wrap">
-                            {uploadedImages.map((imageUrl, index) => (
-                              <div key={index} className="position-relative">
-                                <img
-                                  src={imageUrl}
-                                  alt={`Preview ${index + 1}`}
-                                  style={{ 
-                                    maxWidth: '100px', 
-                                    maxHeight: '100px',
-                                    objectFit: 'cover'
-                                  }}
-                                  className="border rounded"
-                                />
-                                <button
-                                  type="button"
-                                  className="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
-                                  onClick={() => handleRemoveImage(index)}
-                                  style={{ 
-                                    width: '20px', 
-                                    height: '20px', 
-                                    padding: '0',
-                                    borderRadius: '50%'
-                                  }}
-                                >
-                                  ×
-                                </button>
-                              </div>
-                            ))}
+                      {/* Size-wise inventory management */}
+                      {productFormData.sizes && (
+                        <div className="mb-3">
+                          <label className="form-label fw-bold">Size-wise Inventory</label>
+                          <div className="row">
+                            {productFormData.sizes.split(",").map((size, index) => {
+                              const trimmedSize = size.trim();
+                              if (!trimmedSize) return null;
+                              return (
+                                <div key={index} className="col-md-3 mb-2">
+                                  <label className="form-label small">{trimmedSize} Stock</label>
+                                  <input
+                                    type="number"
+                                    className="form-control"
+                                    value={productFormData.sizeStock[trimmedSize] || 0}
+                                    onChange={(e) => handleSizeStockChange(trimmedSize, e.target.value)}
+                                    min="0"
+                                    placeholder="0"
+                                  />
+                                </div>
+                              );
+                            })}
                           </div>
                         </div>
                       )}
-                    </div>
-                  </div>
 
-                  <div className="mb-3">
-                    <div className="form-check">
-                      <input
-                        type="checkbox"
-                        className="form-check-input"
-                        checked={productFormData.tripReady}
-                        onChange={(e) => setProductFormData({ ...productFormData, tripReady: e.target.checked })}
-                      />
-                      <label className="form-check-label">Mark as Trip Ready</label>
-                    </div>
-                  </div>
+                      <div className="row">
+                        <div className="col-md-12 mb-3">
+                          <label className="form-label">Product Images</label>
+                          <div className="d-flex gap-2">
+                            <input
+                              type="file"
+                              className="form-control"
+                              onChange={handleImageUpload}
+                              accept="image/*"
+                              disabled={uploadingImage}
+                              multiple
+                            />
+                            {uploadingImage && (
+                              <span className="text-muted">Uploading...</span>
+                            )}
+                          </div>
 
-                  <div className="d-flex gap-2">
-                    <button type="submit" className="btn btn-success">
-                      {editingProduct ? "Update Product" : "Add Product"}
-                    </button>
-                    <button type="button" className="btn btn-secondary" onClick={handleCancelProduct}>
-                      Cancel
-                    </button>
+                          {/* Image Previews */}
+                          {uploadedImages.length > 0 && (
+                            <div className="mt-3">
+                              <label className="form-label small">Uploaded Images:</label>
+                              <div className="d-flex gap-2 flex-wrap">
+                                {uploadedImages.map((imageUrl, index) => (
+                                  <div key={index} className="position-relative">
+                                    <img
+                                      src={imageUrl}
+                                      alt={`Preview ${index + 1}`}
+                                      style={{
+                                        maxWidth: '100px',
+                                        maxHeight: '100px',
+                                        objectFit: 'cover'
+                                      }}
+                                      className="border rounded"
+                                    />
+                                    <button
+                                      type="button"
+                                      className="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+                                      onClick={() => handleRemoveImage(index)}
+                                      style={{
+                                        width: '20px',
+                                        height: '20px',
+                                        padding: '0',
+                                        borderRadius: '50%'
+                                      }}
+                                    >
+                                      ×
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mb-3">
+                        <div className="form-check">
+                          <input
+                            type="checkbox"
+                            className="form-check-input"
+                            checked={productFormData.tripReady}
+                            onChange={(e) => setProductFormData({ ...productFormData, tripReady: e.target.checked })}
+                          />
+                          <label className="form-check-label">Mark as Trip Ready</label>
+                        </div>
+                      </div>
+
+                      <div className="d-flex gap-2">
+                        <button type="submit" className="btn btn-success">
+                          {editingProduct ? "Update Product" : "Add Product"}
+                        </button>
+                        <button type="button" className="btn btn-secondary" onClick={handleCancelProduct}>
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
                   </div>
-                </form>
-              </div>
-            </div>
-          )}
+                </div>
+              )}
 
           <div className="card shadow">
             <div className="card-header bg-dark text-white">
@@ -839,6 +858,8 @@ function DashboardContent() {
               )}
             </div>
           </div>
+          </>
+        )}
         </div>
       )}
 
