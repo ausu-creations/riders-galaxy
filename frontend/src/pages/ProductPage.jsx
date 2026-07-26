@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "../components/layout/Navbar";
 import Footer from "../components/layout/footer";
@@ -10,15 +10,25 @@ import "../styles/global.css";
 export default function ProductPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { getProduct, getImageForColor, getImagesForColor } = useProducts();
+  const { getProduct, getImageForColor, getImagesForColor, loading: productsLoading } = useProducts();
   const product = getProduct(id);
   const { addItem, openCart } = useCart();
-  const [selectedSize, setSelectedSize] = useState(product?.sizes?.[0] || "");
-  const [selectedColor, setSelectedColor] = useState(product?.colors?.[0] || "");
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
   const [qty, setQty] = useState(1);
-  const [mainImage, setMainImage] = useState(product?.image || "");
+  const [mainImage, setMainImage] = useState("");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // Update state when product becomes available
+  useEffect(() => {
+    if (product) {
+      setSelectedSize(product.sizes?.[0] || "");
+      setSelectedColor(product.colors?.[0] || "");
+      setMainImage(product.image || "");
+      setCurrentImageIndex(0);
+    }
+  }, [product]);
 
   // Update main image when color changes
   const handleColorChange = (color) => {
@@ -32,6 +42,22 @@ export default function ProductPage() {
       setCurrentImageIndex(0);
     }
   };
+
+  // Show loading state while products are being fetched
+  if (productsLoading) {
+    return (
+      <>
+        <Header />
+        <div className="container my-5 text-center">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-3">Loading product...</p>
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
   if (!product) {
     return (
