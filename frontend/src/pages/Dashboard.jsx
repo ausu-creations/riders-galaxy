@@ -32,6 +32,29 @@ function DashboardContent() {
   const [availableCategories, setAvailableCategories] = useState([]);
   const [showOtherBrand, setShowOtherBrand] = useState(false);
   const [showOtherCategory, setShowOtherCategory] = useState(false);
+
+  // Default categories and brands (same as shop page)
+  const DEFAULT_CATEGORIES = [
+    "Air Filter",
+    "AUX Lights",
+    "Brake Pads",
+    "Chain Sprockets",
+    "Crash Gaurds",
+    "Exhausts",
+    "Helmets",
+    "Intercom",
+    "Luggage Systems",
+    "Mobile/Camera Mounts",
+    "Navigation Screens",
+    "Riding Boots",
+    "Riding Gloves",
+    "Riding Jackets",
+    "Riding Pants",
+    "Spark Plugs",
+    "Others",
+  ];
+
+  const DEFAULT_BRANDS = ["Axor", "DSG", "Korda", "LS2", "Lone Ranger", "Raida", "Royal Enfield", "Rynox", "Others"];
   
   // Predefined sizes for checkboxes
   const PREDEFINED_SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
@@ -66,26 +89,30 @@ function DashboardContent() {
     }
   }, [activeTab]);
 
-  // Extract unique brands and categories from products
+  // Extract unique brands and categories from products and merge with defaults
   useEffect(() => {
-    const uniqueBrands = [...new Set(products.map(p => p.brand).filter(Boolean))].sort();
-    const uniqueCategories = [...new Set(products.map(p => p.category).filter(Boolean))].sort();
+    const productBrands = [...new Set(products.map(p => p.brand).filter(Boolean))].sort();
+    const productCategories = [...new Set(products.map(p => p.category).filter(Boolean))].sort();
+    
+    // Merge with defaults
+    const allBrands = [...new Set([...DEFAULT_BRANDS, ...productBrands])].sort();
+    const allCategories = [...new Set([...DEFAULT_CATEGORIES, ...productCategories])].sort();
     
     // Ensure "Others" is always at the end if present
-    const brandOthersIndex = uniqueBrands.indexOf("Others");
+    const brandOthersIndex = allBrands.indexOf("Others");
     if (brandOthersIndex > -1) {
-      uniqueBrands.splice(brandOthersIndex, 1);
-      uniqueBrands.push("Others");
+      allBrands.splice(brandOthersIndex, 1);
+      allBrands.push("Others");
     }
     
-    const categoryOthersIndex = uniqueCategories.indexOf("Others");
+    const categoryOthersIndex = allCategories.indexOf("Others");
     if (categoryOthersIndex > -1) {
-      uniqueCategories.splice(categoryOthersIndex, 1);
-      uniqueCategories.push("Others");
+      allCategories.splice(categoryOthersIndex, 1);
+      allCategories.push("Others");
     }
     
-    setAvailableBrands(uniqueBrands);
-    setAvailableCategories(uniqueCategories);
+    setAvailableBrands(allBrands);
+    setAvailableCategories(allCategories);
   }, [products]);
 
   const fetchOrders = async () => {
@@ -410,7 +437,7 @@ function DashboardContent() {
       });
     }
     
-    // Check if brand or category is not in available lists
+    // Check if brand or category is in the available list
     const brandInList = availableBrands.includes(product.brand);
     const categoryInList = availableCategories.includes(product.category);
     
@@ -707,9 +734,7 @@ function DashboardContent() {
                             {availableCategories.filter(cat => cat !== "Others").map(cat => (
                               <option key={cat} value={cat}>{cat}</option>
                             ))}
-                            {availableCategories.includes("Others") && (
-                              <option key="Others" value="Others">Others</option>
-                            )}
+                            <option value="Others">Others</option>
                             <option value="other">Other (add new)</option>
                           </select>
                           {showOtherCategory && (
@@ -744,9 +769,7 @@ function DashboardContent() {
                             {availableBrands.filter(brand => brand !== "Others").map(brand => (
                               <option key={brand} value={brand}>{brand}</option>
                             ))}
-                            {availableBrands.includes("Others") && (
-                              <option key="Others" value="Others">Others</option>
-                            )}
+                            <option value="Others">Others</option>
                             <option value="other">Other (add new)</option>
                           </select>
                           {showOtherBrand && (
