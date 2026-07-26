@@ -31,6 +31,19 @@ export const ProductProvider = ({ children }) => {
           ...p,
           id: p._id || p.id
         }));
+        
+        // Log specific Axor products to check image data
+        const axorProducts = productsWithId.filter(p => p.brand === 'Axor');
+        if (axorProducts.length > 0) {
+          console.log('Axor products from API:', axorProducts.map(p => ({
+            title: p.title,
+            image: p.image,
+            hasColorImages: !!p.colorImages,
+            colorImagesKeys: p.colorImages ? Object.keys(p.colorImages) : [],
+            imagesCount: p.images?.length || 0
+          })));
+        }
+        
         setProducts(productsWithId);
       } else {
         // Fallback to initial products if backend is empty
@@ -87,6 +100,7 @@ export const ProductProvider = ({ children }) => {
       return updatedProductData;
     } catch (error) {
       console.error('Error updating product:', error);
+      console.error('Error details:', error.response?.data);
       throw error;
     }
   };
@@ -105,6 +119,20 @@ export const ProductProvider = ({ children }) => {
     return products.find((p) => p.id === parseInt(id) || p.id === id);
   };
 
+  // Helper function to get images for a specific color
+  const getImagesForColor = (product, color) => {
+    if (product.colorImages && product.colorImages[color]) {
+      return product.colorImages[color];
+    }
+    return [product.image]; // Return default image in array if no color-specific images
+  };
+
+  // Helper function to get first image for a specific color
+  const getImageForColor = (product, color) => {
+    const images = getImagesForColor(product, color);
+    return images && images.length > 0 ? images[0] : product.image;
+  };
+
   return (
     <ProductContext.Provider
       value={{
@@ -113,6 +141,8 @@ export const ProductProvider = ({ children }) => {
         updateProduct,
         deleteProduct,
         getProduct,
+        getImageForColor,
+        getImagesForColor,
         loading,
         fetchProducts,
       }}

@@ -9,7 +9,7 @@ import Footer from "../components/layout/footer";
 
 function DashboardContent() {
   const navigate = useNavigate();
-  const { products, addProduct, updateProduct, deleteProduct, loading: productsLoading } = useProducts();
+  const { products, addProduct, updateProduct, deleteProduct, fetchProducts, loading: productsLoading } = useProducts();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('products');
   const [loading, setLoading] = useState(false);
@@ -21,9 +21,11 @@ function DashboardContent() {
     title: "", price: "", category: "", brand: "", description: "",
     sizes: "", colors: "", tripReady: false, image: "", images: [], stock: 0,
     sizeStock: {}, // New: individual stock for each size
+    colorImages: {}, // New: color-specific images mapping (arrays of images per color)
   });
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadedImages, setUploadedImages] = useState([]);
+  const [colorImageUploads, setColorImageUploads] = useState({}); // Track uploads per color
   
   // Dynamic brands and categories from existing products
   const [availableBrands, setAvailableBrands] = useState([]);
@@ -128,6 +130,27 @@ function DashboardContent() {
       sizeStock[size] = parseInt(productFormData.sizeStock[size]) || 0;
     });
     
+    // Determine the best main image to save (never save placeholders)
+    let mainImageToSave;
+    if (productFormData.image && !productFormData.image.includes('placeholder') && !productFormData.image.includes('via.placeholder')) {
+      mainImageToSave = productFormData.image;
+    } else if (productFormData.images && productFormData.images.length > 0) {
+      mainImageToSave = productFormData.images[0];
+    } else if (productFormData.colorImages && Object.keys(productFormData.colorImages).length > 0) {
+      const firstColorKey = Object.keys(productFormData.colorImages)[0];
+      const firstColorImages = productFormData.colorImages[firstColorKey];
+      if (firstColorImages && firstColorImages.length > 0) {
+        mainImageToSave = firstColorImages[0];
+      }
+    }
+    
+    // Only use fallback if absolutely necessary
+    if (!mainImageToSave) {
+      mainImageToSave = "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop";
+    }
+    
+    console.log('Saving product with main image:', mainImageToSave);
+    
     const productData = {
       title: productFormData.title,
       price: parseFloat(productFormData.price),
@@ -137,16 +160,19 @@ function DashboardContent() {
       sizes: sizes,
       colors: productFormData.colors.split(",").map(c => c.trim()).filter(c => c),
       tripReady: productFormData.tripReady,
-      image: productFormData.images[0] || "https://via.placeholder.com/300", // Use first image as main
+      image: mainImageToSave,
       images: productFormData.images,
       stock: parseInt(productFormData.stock) || 0,
       sizeStock: sizeStock,
+      colorImages: productFormData.colorImages || {}, // Include color-specific images (arrays per color)
     };
 
     try {
       if (editingProduct) {
         await updateProduct(editingProduct.id, productData);
         setEditingProduct(null);
+        // Refresh products to ensure latest data
+        await fetchProducts();
       } else {
         await addProduct(productData);
       }
@@ -155,8 +181,10 @@ function DashboardContent() {
         title: "", price: "", category: "", brand: "", description: "",
         sizes: "", colors: "", tripReady: false, image: "", images: [], stock: 0,
         sizeStock: {},
+        colorImages: {},
       });
       setUploadedImages([]);
+      setColorImageUploads({});
       setShowProductForm(false);
       setShowOtherBrand(false);
       setShowOtherCategory(false);
@@ -193,10 +221,19 @@ function DashboardContent() {
         const newImages = response.imageUrls;
         console.log('Received image URLs:', newImages);
         setUploadedImages([...uploadedImages, ...newImages]);
+        
+        // Only update main image if there were no regular images before
+        const hadNoRegularImages = !productFormData.images || productFormData.images.length === 0;
+        
         setProductFormData({ 
           ...productFormData, 
           images: [...productFormData.images, ...newImages],
-          image: response.imageUrls[0] // Set first image as main image if not set
+          // Update main image only if there were no regular images before
+          ...(hadNoRegularImages && {
+            image: response.imageUrls[0] || 
+                   (productFormData.colorImages && Object.values(productFormData.colorImages)[0]?.[0]) || 
+                   "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop"
+          })
         });
       } else {
         console.error('Upload failed:', response);
@@ -214,10 +251,108 @@ function DashboardContent() {
   const handleRemoveImage = (index) => {
     const newImages = uploadedImages.filter((_, i) => i !== index);
     setUploadedImages(newImages);
+    
+    // Check if the removed image was the main image
+    const wasMainImage = productFormData.image === uploadedImages[index];
+    const shouldUpdateMainImage = wasMainImage;
+    
+    // Find new main image if needed
+    let newMainImage = productFormData.image;
+    if (shouldUpdateMainImage) {
+      // Try to use remaining regular images, then color images, then fallback
+      newMainImage = newImages[0] || 
+                    (productFormData.colorImages && Object.values(productFormData.colorImages)[0]?.[0]) || 
+                    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop";
+    }
+    
     setProductFormData({ 
       ...productFormData, 
       images: newImages,
-      image: newImages[0] || "" // Update main image if needed
+      image: newMainImage
+    });
+  };
+
+  // Handle color-specific image upload (multiple images per color)
+  const handleColorImageUpload = async (color, e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    console.log(`Starting image upload for color ${color}:`, files.map(f => f.name));
+    setColorImageUploads({ ...colorImageUploads, [color]: true });
+    
+    try {
+      const formData = new FormData();
+      files.forEach(file => {
+        formData.append('images', file);
+      });
+
+      console.log(`Sending upload request for color ${color} with ${files.length} files`);
+      const response = await api.post('/upload/images', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      console.log(`Upload response for color ${color}:`, response);
+
+      if (response.success && response.imageUrls.length > 0) {
+        // Get existing images for this color or initialize empty array
+        const existingColorImages = productFormData.colorImages[color] || [];
+        const newColorImages = [...existingColorImages, ...response.imageUrls];
+        
+        console.log(`Setting images for color ${color}:`, newColorImages);
+        
+        // Update main image if there are no regular images
+        const shouldUpdateMainImage = !productFormData.images || productFormData.images.length === 0;
+        
+        setProductFormData({ 
+          ...productFormData, 
+          colorImages: {
+            ...productFormData.colorImages,
+            [color]: newColorImages
+          },
+          // Update main image if needed (prefer first color image)
+          ...(shouldUpdateMainImage && {
+            image: newColorImages[0] || "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop"
+          })
+        });
+      } else {
+        console.error('Upload failed:', response);
+        alert('Upload failed: ' + (response.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Color image upload error:', error);
+      alert('Failed to upload color image: ' + (error.response?.data?.error || error.message));
+    } finally {
+      setColorImageUploads({ ...colorImageUploads, [color]: false });
+    }
+  };
+
+  // Remove specific color image
+  const handleRemoveColorImage = (color, imageIndex) => {
+    const existingColorImages = productFormData.colorImages[color] || [];
+    const newColorImages = existingColorImages.filter((_, index) => index !== imageIndex);
+    
+    // Check if the removed image was the main image and there are no regular images
+    const wasMainImage = productFormData.image === existingColorImages[imageIndex];
+    const hasRegularImages = productFormData.images && productFormData.images.length > 0;
+    const shouldUpdateMainImage = wasMainImage && !hasRegularImages;
+    
+    // Find new main image if needed
+    let newMainImage = productFormData.image;
+    if (shouldUpdateMainImage) {
+      // Try to use remaining color images
+      const allColorImages = Object.values(productFormData.colorImages).flat();
+      newMainImage = allColorImages[0] || "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop";
+    }
+    
+    setProductFormData({ 
+      ...productFormData, 
+      colorImages: {
+        ...productFormData.colorImages,
+        [color]: newColorImages
+      },
+      ...(shouldUpdateMainImage && { image: newMainImage })
     });
   };
 
@@ -283,6 +418,38 @@ function DashboardContent() {
     const productSizes = product.sizes || [];
     const hasCustomSizes = productSizes.some(size => !PREDEFINED_SIZES.includes(size));
     
+    // Determine the best main image (avoid placeholders)
+    let mainImage;
+    
+    // First priority: Use the existing main image if it's valid
+    if (product.image && 
+        !product.image.includes('placeholder') && 
+        !product.image.includes('via.placeholder') &&
+        !product.image.includes('via.placeholder.com')) {
+      mainImage = product.image;
+    } 
+    // Second priority: Use first regular image if available
+    else if (product.images && product.images.length > 0) {
+      mainImage = product.images[0];
+    }
+    // Third priority: Use first color image if available
+    else if (product.colorImages && Object.keys(product.colorImages).length > 0) {
+      const firstColorKey = Object.keys(product.colorImages)[0];
+      const firstColorImages = product.colorImages[firstColorKey];
+      if (firstColorImages && firstColorImages.length > 0) {
+        mainImage = firstColorImages[0];
+      }
+    }
+    
+    // Final fallback
+    if (!mainImage) {
+      mainImage = "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop";
+    }
+    
+    console.log('Loading product colorImages:', product.colorImages);
+    console.log('Loading product colorImages type:', typeof product.colorImages);
+    console.log('Loading product colorImages keys:', product.colorImages ? Object.keys(product.colorImages) : 'none');
+    
     setProductFormData({
       title: product.title,
       price: product.price,
@@ -292,12 +459,17 @@ function DashboardContent() {
       sizes: hasCustomSizes ? productSizes.join(", ") : productSizes.join(", "),
       colors: product.colors ? product.colors.join(", ") : "",
       tripReady: product.tripReady || false,
-      image: product.image,
+      image: mainImage,
       images: product.images || [],
       stock: product.stock || 0,
       sizeStock: sizeStockObj,
+      colorImages: product.colorImages || {}, // Load color-specific images (already converted by backend)
     });
+    
+    console.log('Set productFormData colorImages:', productFormData.colorImages);
+    
     setUploadedImages(product.images || []);
+    setColorImageUploads({});
     setShowProductForm(true);
   };
 
@@ -319,8 +491,10 @@ function DashboardContent() {
       title: "", price: "", category: "", brand: "", description: "",
       sizes: "", colors: "", tripReady: false, image: "", images: [], stock: 0,
       sizeStock: {},
+      colorImages: {},
     });
     setUploadedImages([]);
+    setColorImageUploads({});
     setShowOtherBrand(false);
     setShowOtherCategory(false);
   };
@@ -524,7 +698,7 @@ function DashboardContent() {
                                 setProductFormData({ ...productFormData, category: value });
                               }
                             }}
-                            required
+                            required={!showOtherCategory}
                           >
                             <option value="">Select Category</option>
                             {availableCategories.filter(cat => cat !== "Others").map(cat => (
@@ -561,6 +735,7 @@ function DashboardContent() {
                                 setProductFormData({ ...productFormData, brand: value });
                               }
                             }}
+                            required={!showOtherBrand}
                           >
                             <option value="">Select Brand</option>
                             {availableBrands.filter(brand => brand !== "Others").map(brand => (
@@ -578,6 +753,7 @@ function DashboardContent() {
                               placeholder="Enter new brand"
                               value={productFormData.brand}
                               onChange={(e) => setProductFormData({ ...productFormData, brand: e.target.value })}
+                              required
                             />
                           )}
                         </div>
@@ -747,6 +923,81 @@ function DashboardContent() {
                         </div>
                       </div>
 
+                      {/* Color-Specific Images Section */}
+                      {productFormData.colors && (
+                        <div className="row mb-3">
+                          <div className="col-md-12">
+                            <label className="form-label">Color-Specific Images <span className="text-muted small">(No limit - upload as many as you want)</span></label>
+                            <div className="card bg-light">
+                              <div className="card-body">
+                                {productFormData.colors.split(",").map(c => c.trim()).filter(c => c).map((color) => (
+                                  <div key={color} className="mb-3 p-2 border rounded">
+                                    <div className="d-flex align-items-center mb-2">
+                                      <strong className="me-2">{color}:</strong>
+                                      <span className="text-muted small">
+                                        {productFormData.colorImages[color]?.length || 0} image(s) uploaded
+                                      </span>
+                                    </div>
+                                    
+                                    {/* Display multiple images for this color */}
+                                    {productFormData.colorImages[color] && productFormData.colorImages[color].length > 0 && (
+                                      <div className="d-flex gap-2 flex-wrap mb-2">
+                                        {productFormData.colorImages[color].map((imageUrl, index) => (
+                                          <div key={index} className="position-relative">
+                                            <img
+                                              src={imageUrl}
+                                              alt={`${color} variant ${index + 1}`}
+                                              style={{
+                                                maxWidth: '60px',
+                                                maxHeight: '60px',
+                                                objectFit: 'cover'
+                                              }}
+                                              className="border rounded"
+                                            />
+                                            <button
+                                              type="button"
+                                              className="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+                                              onClick={() => handleRemoveColorImage(color, index)}
+                                              style={{
+                                                width: '20px',
+                                                height: '20px',
+                                                padding: '0',
+                                                borderRadius: '50%',
+                                                fontSize: '12px'
+                                              }}
+                                            >
+                                              ×
+                                            </button>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
+                                    
+                                    {/* Upload button for this color */}
+                                    <div className="d-flex gap-2 align-items-center">
+                                      <input
+                                        type="file"
+                                        className="form-control form-control-sm"
+                                        onChange={(e) => handleColorImageUpload(color, e)}
+                                        accept="image/*"
+                                        disabled={colorImageUploads[color]}
+                                        multiple
+                                      />
+                                      {colorImageUploads[color] && (
+                                        <span className="text-muted small">Uploading...</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                                {(!productFormData.colors || productFormData.colors.split(",").map(c => c.trim()).filter(c => c).length === 0) && (
+                                  <p className="text-muted small mb-0">Add colors above to enable color-specific images</p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
                       <div className="mb-3">
                         <div className="form-check">
                           <input
@@ -813,10 +1064,13 @@ function DashboardContent() {
                           <td>{product.id}</td>
                           <td>
                             <img
-                              src={product.image}
+                              src={product.image || "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop"}
                               alt={product.title}
                               style={{ width: 50, height: 50, objectFit: "cover" }}
                               className="rounded"
+                              onError={(e) => {
+                                e.target.src = "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop";
+                              }}
                             />
                           </td>
                           <td>

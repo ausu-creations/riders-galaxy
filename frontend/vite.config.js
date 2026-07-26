@@ -5,4 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   base: '/riders-galaxy/',
   plugins: [react()],
+  build: {
+    chunkSizeWarningLimit: 2000, // Increase chunk size warning limit to 2000KB
+  },
 })

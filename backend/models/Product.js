@@ -38,6 +38,11 @@ const productSchema = new mongoose.Schema({
   sizes: [String],
   colors: [String],
   sizeStock: [sizeStockSchema], // Individual stock for each size
+  colorImages: {
+    type: Map,
+    of: [String], // Maps color names to arrays of image URLs
+    default: new Map()
+  },
   tripReady: {
     type: Boolean,
     default: false,
@@ -94,6 +99,37 @@ productSchema.methods.updateStockForSize = function(size, quantity) {
   
   // Update total stock
   this.stock = this.getTotalStock();
+};
+
+// Method to get images for a specific color
+productSchema.methods.getImagesForColor = function(color) {
+  if (this.colorImages && this.colorImages.has(color)) {
+    return this.colorImages.get(color);
+  }
+  return [this.image]; // Return default image in array if no color-specific images
+};
+
+// Method to get first image for a specific color
+productSchema.methods.getImageForColor = function(color) {
+  const images = this.getImagesForColor(color);
+  return images && images.length > 0 ? images[0] : this.image;
+};
+
+// Method to set images for a specific color
+productSchema.methods.setImagesForColor = function(color, imageUrls) {
+  if (!this.colorImages) {
+    this.colorImages = new Map();
+  }
+  this.colorImages.set(color, imageUrls);
+};
+
+// Method to add image to a specific color
+productSchema.methods.addImageForColor = function(color, imageUrl) {
+  if (!this.colorImages) {
+    this.colorImages = new Map();
+  }
+  const existingImages = this.colorImages.get(color) || [];
+  this.colorImages.set(color, [...existingImages, imageUrl]);
 };
 
 productSchema.pre('save', function(next) {

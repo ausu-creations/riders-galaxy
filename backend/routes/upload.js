@@ -29,7 +29,8 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
+    fileSize: 10 * 1024 * 1024, // 10MB limit per file
+    files: 50 // Maximum 50 files per request
   },
   fileFilter: function (req, file, cb) {
     // Accept images only
@@ -67,8 +68,8 @@ router.post('/image', authenticate, requireAdmin, upload.single('image'), (req, 
   }
 });
 
-// Upload multiple images
-router.post('/images', authenticate, requireAdmin, upload.array('images', 10), (req, res) => {
+// Upload multiple images (no limit)
+router.post('/images', authenticate, requireAdmin, upload.array('images'), (req, res) => {
   try {
     console.log('Received upload request');
     console.log('Files in request:', req.files);

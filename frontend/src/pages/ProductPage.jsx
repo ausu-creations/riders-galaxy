@@ -10,7 +10,7 @@ import "../styles/global.css";
 export default function ProductPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { getProduct } = useProducts();
+  const { getProduct, getImageForColor, getImagesForColor } = useProducts();
   const product = getProduct(id);
   const { addItem, openCart } = useCart();
   const [selectedSize, setSelectedSize] = useState(product?.sizes?.[0] || "");
@@ -19,6 +19,19 @@ export default function ProductPage() {
   const [mainImage, setMainImage] = useState(product?.image || "");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // Update main image when color changes
+  const handleColorChange = (color) => {
+    setSelectedColor(color);
+    const colorImages = getImagesForColor(product, color);
+    if (colorImages && colorImages.length > 0) {
+      setMainImage(colorImages[0]);
+      setCurrentImageIndex(0); // Reset to first image when color changes
+    } else {
+      setMainImage(product.image);
+      setCurrentImageIndex(0);
+    }
+  };
 
   if (!product) {
     return (
@@ -36,7 +49,10 @@ export default function ProductPage() {
     );
   }
 
-  const productImages = product.images && product.images.length > 0 ? product.images : [product.image];
+  // Get images for the selected color, or default to product images
+  const productImages = selectedColor && product.colorImages && product.colorImages[selectedColor] 
+    ? product.colorImages[selectedColor] 
+    : (product.images && product.images.length > 0 ? product.images : [product.image]);
 
   // Calculate total stock from sizeStock or use total stock
   const getTotalStock = () => {
@@ -136,7 +152,7 @@ export default function ProductPage() {
                           key={c}
                           className={`color-swatch ${selectedColor === c ? 'active' : ''}`}
                           style={{ backgroundColor: getColorCode(c) }}
-                          onClick={() => setSelectedColor(c)}
+                          onClick={() => handleColorChange(c)}
                           title={c}
                         />
                       ))}

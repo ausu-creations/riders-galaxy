@@ -28,6 +28,12 @@ router.get('/', async (req, res) => {
     
     let products = await Product.find(query);
     
+    // Convert MongoDB Maps to plain objects for JSON serialization
+    products = products.map(product => ({
+      ...product.toObject(),
+      colorImages: product.colorImages ? Object.fromEntries(product.colorImages) : {}
+    }));
+    
     // Sorting
     if (sort === 'price-asc') {
       products.sort((a, b) => a.price - b.price);
@@ -53,7 +59,13 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Product not found' });
     }
     
-    res.json({ product });
+    // Convert MongoDB Map to plain object for JSON serialization
+    const productData = {
+      ...product.toObject(),
+      colorImages: product.colorImages ? Object.fromEntries(product.colorImages) : {}
+    };
+    
+    res.json({ product: productData });
   } catch (error) {
     console.error('Get product error:', error);
     res.status(500).json({ error: 'Failed to fetch product' });
@@ -63,9 +75,32 @@ router.get('/:id', async (req, res) => {
 // Create product (admin only)
 router.post('/', authenticate, requireAdmin, async (req, res) => {
   try {
-    const product = new Product(req.body);
+    // Clean up placeholder URLs before saving
+    let imageToSave = req.body.image;
+    if (imageToSave && (imageToSave.includes('placeholder') || imageToSave.includes('via.placeholder'))) {
+      console.log('Removing placeholder URL from new product');
+      imageToSave = null;
+    }
+    
+    // Convert colorImages object to Map for MongoDB
+    const productData = {
+      ...req.body,
+      image: imageToSave,
+      colorImages: req.body.colorImages ? new Map(Object.entries(req.body.colorImages)) : new Map()
+    };
+    
+    const product = new Product(productData);
     await product.save();
-    res.status(201).json({ product });
+    
+    // Convert MongoDB Map back to object for response
+    const responseData = {
+      ...product.toObject(),
+      colorImages: product.colorImages ? Object.fromEntries(product.colorImages) : {}
+    };
+    
+    console.log('Created product colorImages:', responseData.colorImages);
+    
+    res.status(201).json({ product: responseData });
   } catch (error) {
     console.error('Create product error:', error);
     res.status(500).json({ error: 'Failed to create product' });
@@ -75,9 +110,30 @@ router.post('/', authenticate, requireAdmin, async (req, res) => {
 // Update product (admin only)
 router.put('/:id', authenticate, requireAdmin, async (req, res) => {
   try {
+    console.log('Update request body:', req.body);
+    console.log('colorImages in request:', req.body.colorImages);
+    
+    // Clean up placeholder URLs before saving
+    let imageToSave = req.body.image;
+    if (imageToSave && (imageToSave.includes('placeholder') || imageToSave.includes('via.placeholder'))) {
+      console.log('Removing placeholder URL, will use color images or fallback');
+      imageToSave = null;
+    }
+    
+    // Convert colorImages object to Map for MongoDB
+    const productData = {
+      ...req.body,
+      image: imageToSave,
+      colorImages: req.body.colorImages ? new Map(Object.entries(req.body.colorImages)) : new Map()
+    };
+    
+    console.log('productData colorImages:', productData.colorImages);
+    console.log('productData image:', productData.image);
+    
+    // Use $set to explicitly replace the colorImages field
     const product = await Product.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      { $set: productData },
       { new: true, runValidators: true }
     );
     
@@ -85,7 +141,17 @@ router.put('/:id', authenticate, requireAdmin, async (req, res) => {
       return res.status(404).json({ error: 'Product not found' });
     }
     
-    res.json({ product });
+    console.log('Updated product colorImages:', product.colorImages);
+    
+    // Convert MongoDB Map back to object for response
+    const responseData = {
+      ...product.toObject(),
+      colorImages: product.colorImages ? Object.fromEntries(product.colorImages) : {}
+    };
+    
+    console.log('Response colorImages:', responseData.colorImages);
+    
+    res.json({ product: responseData });
   } catch (error) {
     console.error('Update product error:', error);
     res.status(500).json({ error: 'Failed to update product' });
