@@ -20,8 +20,9 @@ function DashboardContent() {
   const [productFormData, setProductFormData] = useState({
     title: "", price: "", category: "", brand: "", description: "",
     sizes: "", colors: "", tripReady: false, image: "", images: [], stock: 0,
-    sizeStock: {}, // New: individual stock for each size
-    colorImages: {}, // New: color-specific images mapping (arrays of images per color)
+    sizeStock: {}, // Legacy: individual stock for each size
+    colorImages: {}, // Color-specific images mapping (arrays of images per color)
+    colorSizeStock: {}, // New: color-specific size stock mapping
   });
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadedImages, setUploadedImages] = useState([]);
@@ -152,10 +153,30 @@ function DashboardContent() {
     const sizes = productFormData.sizes.split(",").map(s => s.trim()).filter(s => s);
     
     // Build sizeStock object from form data
-    const sizeStock = {};
+    const sizeStock = [];
     sizes.forEach(size => {
-      sizeStock[size] = parseInt(productFormData.sizeStock[size]) || 0;
+      sizeStock.push({
+        size: size,
+        stock: parseInt(productFormData.sizeStock[size]) || 0
+      });
     });
+    
+    // Build colorSizeStock object from form data
+    const colorSizeStock = {};
+    if (productFormData.colors) {
+      const colors = productFormData.colors.split(",").map(c => c.trim()).filter(c => c);
+      colors.forEach(color => {
+        const colorStockArray = [];
+        sizes.forEach(size => {
+          const stock = productFormData.colorSizeStock[color]?.[size] || 0;
+          colorStockArray.push({
+            size: size,
+            stock: stock
+          });
+        });
+        colorSizeStock[color] = colorStockArray;
+      });
+    }
     
     // Determine the best main image to save (never save placeholders)
     let mainImageToSave;
@@ -178,8 +199,7 @@ function DashboardContent() {
     
     console.log('Saving product with main image:', mainImageToSave);
     console.log('Saving product with colorImages:', productFormData.colorImages);
-    console.log('ColorImages type:', typeof productFormData.colorImages);
-    console.log('ColorImages keys:', productFormData.colorImages ? Object.keys(productFormData.colorImages) : 'none');
+    console.log('Saving product with colorSizeStock:', colorSizeStock);
     
     const productData = {
       title: productFormData.title,
@@ -194,7 +214,8 @@ function DashboardContent() {
       images: productFormData.images,
       stock: parseInt(productFormData.stock) || 0,
       sizeStock: sizeStock,
-      colorImages: productFormData.colorImages || {}, // Include color-specific images (arrays per color)
+      colorImages: productFormData.colorImages || {},
+      colorSizeStock: colorSizeStock // Include color-specific size stock
     };
 
     try {
@@ -397,6 +418,21 @@ function DashboardContent() {
     });
   };
 
+  // Handle color-specific size stock change
+  const handleColorSizeStockChange = (color, size, value) => {
+    const currentColorStock = productFormData.colorSizeStock[color] || {};
+    setProductFormData({
+      ...productFormData,
+      colorSizeStock: {
+        ...productFormData.colorSizeStock,
+        [color]: {
+          ...currentColorStock,
+          [size]: parseInt(value) || 0
+        }
+      }
+    });
+  };
+
   // Handle size checkbox change
   const handleSizeCheckboxChange = (size) => {
     const currentSizes = productFormData.sizes ? productFormData.sizes.split(",").map(s => s.trim()).filter(s => s) : [];
@@ -410,7 +446,15 @@ function DashboardContent() {
         sizeStock: {
           ...productFormData.sizeStock,
           [size]: 0 // Reset stock for removed size
-        }
+        },
+        // Also remove from color-specific stock
+        colorSizeStock: Object.keys(productFormData.colorSizeStock).reduce((acc, color) => {
+          const colorStock = productFormData.colorSizeStock[color];
+          const newColorStock = { ...colorStock };
+          delete newColorStock[size];
+          acc[color] = newColorStock;
+          return acc;
+        }, {})
       });
     } else {
       // Add size
@@ -421,7 +465,16 @@ function DashboardContent() {
         sizeStock: {
           ...productFormData.sizeStock,
           [size]: 0 // Initialize stock for new size
-        }
+        },
+        // Also initialize in color-specific stock
+        colorSizeStock: Object.keys(productFormData.colorSizeStock).reduce((acc, color) => {
+          const colorStock = productFormData.colorSizeStock[color] || {};
+          acc[color] = {
+            ...colorStock,
+            [size]: 0
+          };
+          return acc;
+        }, productFormData.colorSizeStock)
       });
     }
   };
@@ -477,8 +530,20 @@ function DashboardContent() {
     }
     
     console.log('Loading product colorImages:', product.colorImages);
-    console.log('Loading product colorImages type:', typeof product.colorImages);
-    console.log('Loading product colorImages keys:', product.colorImages ? Object.keys(product.colorImages) : 'none');
+    console.log('Loading product colorSizeStock:', product.colorSizeStock);
+    
+    // Convert colorSizeStock array to object for form
+    const colorSizeStockObj = {};
+    if (product.colorSizeStock && Object.keys(product.colorSizeStock).length > 0) {
+      Object.keys(product.colorSizeStock).forEach(color => {
+        const sizeStockArray = product.colorSizeStock[color];
+        const sizeStockObj = {};
+        sizeStockArray.forEach(item => {
+          sizeStockObj[item.size] = item.stock;
+        });
+        colorSizeStockObj[color] = sizeStockObj;
+      });
+    }
     
     setProductFormData({
       title: product.title,
@@ -493,7 +558,8 @@ function DashboardContent() {
       images: product.images || [],
       stock: product.stock || 0,
       sizeStock: sizeStockObj,
-      colorImages: product.colorImages || {}, // Load color-specific images (already converted by backend)
+      colorImages: product.colorImages || {},
+      colorSizeStock: colorSizeStockObj // Load color-specific size stock
     });
     
     console.log('Set productFormData colorImages:', productFormData.colorImages);
@@ -522,6 +588,7 @@ function DashboardContent() {
       sizes: "", colors: "", tripReady: false, image: "", images: [], stock: 0,
       sizeStock: {},
       colorImages: {},
+      colorSizeStock: {},
     });
     setUploadedImages([]);
     setColorImageUploads({});
@@ -890,6 +957,51 @@ function DashboardContent() {
                                 </div>
                               );
                             })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Color-specific size-wise inventory management */}
+                      {productFormData.colors && productFormData.sizes && (
+                        <div className="mb-3">
+                          <label className="form-label fw-bold">Color-Specific Size Inventory</label>
+                          <div className="card bg-light">
+                            <div className="card-body">
+                              {productFormData.colors.split(",").map((color, colorIndex) => {
+                                const trimmedColor = color.trim();
+                                if (!trimmedColor) return null;
+                                return (
+                                  <div key={colorIndex} className="mb-3 p-2 border rounded">
+                                    <div className="d-flex align-items-center mb-2">
+                                      <strong className="me-2">{trimmedColor}:</strong>
+                                      <span className="text-muted small">
+                                        Set stock for each size
+                                      </span>
+                                    </div>
+                                    
+                                    <div className="row">
+                                      {productFormData.sizes.split(",").map((size, sizeIndex) => {
+                                        const trimmedSize = size.trim();
+                                        if (!trimmedSize) return null;
+                                        return (
+                                          <div key={sizeIndex} className="col-md-3 mb-2">
+                                            <label className="form-label small">{trimmedSize} Stock</label>
+                                            <input
+                                              type="number"
+                                              className="form-control"
+                                              value={productFormData.colorSizeStock[trimmedColor]?.[trimmedSize] || 0}
+                                              onChange={(e) => handleColorSizeStockChange(trimmedColor, trimmedSize, e.target.value)}
+                                              min="0"
+                                              placeholder="0"
+                                            />
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
                           </div>
                         </div>
                       )}

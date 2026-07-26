@@ -37,7 +37,12 @@ const productSchema = new mongoose.Schema({
   },
   sizes: [String],
   colors: [String],
-  sizeStock: [sizeStockSchema], // Individual stock for each size
+  sizeStock: [sizeStockSchema], // Individual stock for each size (legacy)
+  colorSizeStock: {
+    type: Map,
+    of: [sizeStockSchema], // Maps color names to arrays of {size, stock}
+    default: new Map()
+  },
   colorImages: {
     type: Map,
     of: [String], // Maps color names to arrays of image URLs
@@ -67,15 +72,31 @@ const productSchema = new mongoose.Schema({
   },
 });
 
-// Method to get total stock across all sizes
+// Method to get total stock across all sizes and colors
 productSchema.methods.getTotalStock = function() {
-  if (this.sizeStock && this.sizeStock.length > 0) {
-    return this.sizeStock.reduce((total, item) => total + item.stock, 0);
+  let total = 0;
+  
+  // If colorSizeStock exists, sum all color-size combinations
+  if (this.colorSizeStock && this.colorSizeStock.size > 0) {
+    this.colorSizeStock.forEach((sizeStockArray) => {
+      sizeStockArray.forEach((item) => {
+        total += item.stock || 0;
+      });
+    });
+  } 
+  // Fall back to legacy sizeStock
+  else if (this.sizeStock && this.sizeStock.length > 0) {
+    total = this.sizeStock.reduce((sum, item) => sum + item.stock, 0);
+  } 
+  // Fall back to total stock
+  else {
+    total = this.stock || 0;
   }
-  return this.stock || 0;
+  
+  return total;
 };
 
-// Method to get stock for a specific size
+// Method to get stock for a specific size (fallback for compatibility)
 productSchema.methods.getStockForSize = function(size) {
   if (this.sizeStock && this.sizeStock.length > 0) {
     const sizeItem = this.sizeStock.find(item => item.size === size);
@@ -84,7 +105,28 @@ productSchema.methods.getStockForSize = function(size) {
   return this.stock || 0;
 };
 
-// Method to update stock for a specific size
+// Method to get stock for a specific color and size
+productSchema.methods.getStockForColorSize = function(color, size) {
+  if (this.colorSizeStock && this.colorSizeStock.has(color)) {
+    const sizeStockArray = this.colorSizeStock.get(color);
+    const sizeItem = sizeStockArray.find(item => item.size === size);
+    return sizeItem ? sizeItem.stock : 0;
+  }
+  // Fall back to legacy sizeStock
+  return this.getStockForSize(size);
+};
+
+// Method to get stock for a specific color (sum of all sizes)
+productSchema.methods.getStockForColor = function(color) {
+  if (this.colorSizeStock && this.colorSizeStock.has(color)) {
+    const sizeStockArray = this.colorSizeStock.get(color);
+    return sizeStockArray.reduce((total, item) => total + item.stock, 0);
+  }
+  // Fall back to total stock
+  return this.getTotalStock();
+};
+
+// Method to update stock for a specific size (legacy)
 productSchema.methods.updateStockForSize = function(size, quantity) {
   if (!this.sizeStock) {
     this.sizeStock = [];
@@ -96,6 +138,27 @@ productSchema.methods.updateStockForSize = function(size, quantity) {
   } else {
     this.sizeStock.push({ size, stock: Math.max(0, quantity) });
   }
+  
+  // Update total stock
+  this.stock = this.getTotalStock();
+};
+
+// Method to update stock for a specific color and size
+productSchema.methods.updateStockForColorSize = function(color, size, quantity) {
+  if (!this.colorSizeStock) {
+    this.colorSizeStock = new Map();
+  }
+  
+  const sizeStockArray = this.colorSizeStock.get(color) || [];
+  const sizeIndex = sizeStockArray.findIndex(item => item.size === size);
+  
+  if (sizeIndex >= 0) {
+    sizeStockArray[sizeIndex].stock = Math.max(0, quantity);
+  } else {
+    sizeStockArray.push({ size, stock: Math.max(0, quantity) });
+  }
+  
+  this.colorSizeStock.set(color, sizeStockArray);
   
   // Update total stock
   this.stock = this.getTotalStock();

@@ -60,10 +60,10 @@ export const ProductProvider = ({ children }) => {
 
   const addProduct = async (product) => {
     try {
-      // Convert sizeStock object to array for MongoDB compatibility
+      // Convert sizeStock to array for MongoDB compatibility (already array from form)
       const productData = {
         ...product,
-        sizeStock: product.sizeStock ? Object.entries(product.sizeStock).map(([size, stock]) => ({ size, stock })) : [],
+        sizeStock: Array.isArray(product.sizeStock) ? product.sizeStock : [],
         // Ensure images is an array
         images: Array.isArray(product.images) ? product.images : []
       };
@@ -83,10 +83,10 @@ export const ProductProvider = ({ children }) => {
 
   const updateProduct = async (id, updatedProduct) => {
     try {
-      // Convert sizeStock object to array for MongoDB compatibility
+      // Convert sizeStock to array for MongoDB compatibility (already array from form)
       const productData = {
         ...updatedProduct,
-        sizeStock: updatedProduct.sizeStock ? Object.entries(updatedProduct.sizeStock).map(([size, stock]) => ({ size, stock })) : [],
+        sizeStock: Array.isArray(updatedProduct.sizeStock) ? updatedProduct.sizeStock : [],
         // Ensure images is an array
         images: Array.isArray(updatedProduct.images) ? updatedProduct.images : []
       };
@@ -133,6 +133,31 @@ export const ProductProvider = ({ children }) => {
     return images && images.length > 0 ? images[0] : product.image;
   };
 
+  // Helper function to get stock for a specific color and size
+  const getStockForColorSize = (product, color, size) => {
+    if (product.colorSizeStock && product.colorSizeStock[color]) {
+      const sizeStockArray = product.colorSizeStock[color];
+      const sizeItem = sizeStockArray.find(item => item.size === size);
+      return sizeItem ? sizeItem.stock : 0;
+    }
+    // Fall back to legacy sizeStock
+    if (product.sizeStock && product.sizeStock.length > 0) {
+      const sizeItem = product.sizeStock.find(item => item.size === size);
+      return sizeItem ? sizeItem.stock : 0;
+    }
+    return product.stock || 0;
+  };
+
+  // Helper function to get total stock for a specific color
+  const getStockForColor = (product, color) => {
+    if (product.colorSizeStock && product.colorSizeStock[color]) {
+      const sizeStockArray = product.colorSizeStock[color];
+      return sizeStockArray.reduce((total, item) => total + item.stock, 0);
+    }
+    // Fall back to total stock
+    return product.stock || 0;
+  };
+
   return (
     <ProductContext.Provider
       value={{
@@ -143,6 +168,8 @@ export const ProductProvider = ({ children }) => {
         getProduct,
         getImageForColor,
         getImagesForColor,
+        getStockForColorSize,
+        getStockForColor,
         loading,
         fetchProducts,
       }}

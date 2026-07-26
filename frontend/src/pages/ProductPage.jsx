@@ -10,7 +10,7 @@ import "../styles/global.css";
 export default function ProductPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { getProduct, getImageForColor, getImagesForColor, loading: productsLoading } = useProducts();
+  const { getProduct, getImageForColor, getImagesForColor, getStockForColorSize, loading: productsLoading } = useProducts();
   const product = getProduct(id);
   const { addItem, openCart } = useCart();
   const [selectedSize, setSelectedSize] = useState("");
@@ -199,7 +199,10 @@ export default function ProductPage() {
                     <label className="option-label d-block mb-2">Size: <span className="selected-option">{selectedSize}</span></label>
                     <div className="size-options d-flex gap-2 flex-wrap">
                       {product.sizes.map((s) => {
-                        const sizeStock = product.sizeStock?.find(item => item.size === s)?.stock || 0;
+                        // Use color-specific stock if color is selected, otherwise use general size stock
+                        const sizeStock = selectedColor && product.colorSizeStock 
+                          ? getStockForColorSize(product, selectedColor, s)
+                          : (product.sizeStock?.find(item => item.size === s)?.stock || 0);
                         const isOutOfStock = sizeStock === 0;
                         return (
                           <button

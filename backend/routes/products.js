@@ -31,7 +31,8 @@ router.get('/', async (req, res) => {
     // Convert MongoDB Maps to plain objects for JSON serialization
     products = products.map(product => ({
       ...product.toObject(),
-      colorImages: product.colorImages ? Object.fromEntries(product.colorImages) : {}
+      colorImages: product.colorImages ? Object.fromEntries(product.colorImages) : {},
+      colorSizeStock: product.colorSizeStock ? Object.fromEntries(product.colorSizeStock) : {}
     }));
     
     // Sorting
@@ -62,7 +63,8 @@ router.get('/:id', async (req, res) => {
     // Convert MongoDB Map to plain object for JSON serialization
     const productData = {
       ...product.toObject(),
-      colorImages: product.colorImages ? Object.fromEntries(product.colorImages) : {}
+      colorImages: product.colorImages ? Object.fromEntries(product.colorImages) : {},
+      colorSizeStock: product.colorSizeStock ? Object.fromEntries(product.colorSizeStock) : {}
     };
     
     res.json({ product: productData });
@@ -82,11 +84,12 @@ router.post('/', authenticate, requireAdmin, async (req, res) => {
       imageToSave = null;
     }
     
-    // Convert colorImages object to Map for MongoDB
+    // Convert colorImages and colorSizeStock objects to Map for MongoDB
     const productData = {
       ...req.body,
       image: imageToSave,
-      colorImages: req.body.colorImages ? new Map(Object.entries(req.body.colorImages)) : new Map()
+      colorImages: req.body.colorImages ? new Map(Object.entries(req.body.colorImages)) : new Map(),
+      colorSizeStock: req.body.colorSizeStock ? new Map(Object.entries(req.body.colorSizeStock)) : new Map()
     };
     
     const product = new Product(productData);
@@ -95,7 +98,8 @@ router.post('/', authenticate, requireAdmin, async (req, res) => {
     // Convert MongoDB Map back to object for response
     const responseData = {
       ...product.toObject(),
-      colorImages: product.colorImages ? Object.fromEntries(product.colorImages) : {}
+      colorImages: product.colorImages ? Object.fromEntries(product.colorImages) : {},
+      colorSizeStock: product.colorSizeStock ? Object.fromEntries(product.colorSizeStock) : {}
     };
     
     console.log('Created product colorImages:', responseData.colorImages);
@@ -120,11 +124,12 @@ router.put('/:id', authenticate, requireAdmin, async (req, res) => {
       imageToSave = null;
     }
     
-    // Convert colorImages object to Map for MongoDB
+    // Convert colorImages and colorSizeStock objects to Map for MongoDB
     const productData = {
       ...req.body,
       image: imageToSave,
-      colorImages: req.body.colorImages ? new Map(Object.entries(req.body.colorImages)) : new Map()
+      colorImages: req.body.colorImages ? new Map(Object.entries(req.body.colorImages)) : new Map(),
+      colorSizeStock: req.body.colorSizeStock ? new Map(Object.entries(req.body.colorSizeStock)) : new Map()
     };
     
     console.log('productData colorImages:', productData.colorImages);
@@ -146,7 +151,8 @@ router.put('/:id', authenticate, requireAdmin, async (req, res) => {
     // Convert MongoDB Map back to object for response
     const responseData = {
       ...product.toObject(),
-      colorImages: product.colorImages ? Object.fromEntries(product.colorImages) : {}
+      colorImages: product.colorImages ? Object.fromEntries(product.colorImages) : {},
+      colorSizeStock: product.colorSizeStock ? Object.fromEntries(product.colorSizeStock) : {}
     };
     
     console.log('Response colorImages:', responseData.colorImages);
