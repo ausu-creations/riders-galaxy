@@ -150,6 +150,9 @@ function DashboardContent() {
     }
     
     console.log('Saving product with main image:', mainImageToSave);
+    console.log('Saving product with colorImages:', productFormData.colorImages);
+    console.log('ColorImages type:', typeof productFormData.colorImages);
+    console.log('ColorImages keys:', productFormData.colorImages ? Object.keys(productFormData.colorImages) : 'none');
     
     const productData = {
       title: productFormData.title,
