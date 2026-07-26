@@ -10,7 +10,7 @@ import "../styles/global.css";
 export default function ProductPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { getProduct, getImageForColor, getImagesForColor, getStockForColorSize, loading: productsLoading } = useProducts();
+  const { getProduct, getImageForColor, getImagesForColor, loading: productsLoading } = useProducts();
   const product = getProduct(id);
   const { addItem, openCart } = useCart();
   const [selectedSize, setSelectedSize] = useState("");
@@ -87,20 +87,36 @@ export default function ProductPage() {
     ? product.colorImages[selectedColor] 
     : (product.images && product.images.length > 0 ? product.images : [product.image]);
 
-  // Calculate total stock from sizeStock or use total stock
+  // Calculate total stock from colorSizeStock, sizeStock, or total stock
   const getTotalStock = () => {
+    // If product has colorSizeStock, sum all color-size combinations
+    if (product.colorSizeStock && Object.keys(product.colorSizeStock).length > 0) {
+      let total = 0;
+      Object.values(product.colorSizeStock).forEach(sizeStockArray => {
+        sizeStockArray.forEach(item => {
+          total += item.stock || 0;
+        });
+      });
+      return total;
+    }
     // If product has sizeStock, sum up all size stocks
-    if (product.sizeStock && product.sizeStock.length > 0) {
+    else if (product.sizeStock && product.sizeStock.length > 0) {
       return product.sizeStock.reduce((total, item) => total + (item.stock || 0), 0);
     }
     // Fall back to total stock
     return product.stock || 0;
   };
 
-  // Check if product is in stock by checking sizeStock or total stock
+  // Check if product is in stock by checking colorSizeStock, sizeStock, or total stock
   const isInStock = () => {
+    // If product has colorSizeStock, check if any color-size combination has stock > 0
+    if (product.colorSizeStock && Object.keys(product.colorSizeStock).length > 0) {
+      return Object.values(product.colorSizeStock).some(sizeStockArray => 
+        sizeStockArray.some(item => item.stock > 0)
+      );
+    }
     // If product has sizeStock, check if any size has stock > 0
-    if (product.sizeStock && product.sizeStock.length > 0) {
+    else if (product.sizeStock && product.sizeStock.length > 0) {
       return product.sizeStock.some(item => item.stock > 0);
     }
     // Fall back to total stock
@@ -200,9 +216,18 @@ export default function ProductPage() {
                     <div className="size-options d-flex gap-2 flex-wrap">
                       {product.sizes.map((s) => {
                         // Use color-specific stock if color is selected, otherwise use general size stock
-                        const sizeStock = selectedColor && product.colorSizeStock 
-                          ? getStockForColorSize(product, selectedColor, s)
-                          : (product.sizeStock?.find(item => item.size === s)?.stock || 0);
+                        let sizeStock = 0;
+                        if (selectedColor && product.colorSizeStock && product.colorSizeStock[selectedColor]) {
+                          const colorStockArray = product.colorSizeStock[selectedColor];
+                          const sizeItem = colorStockArray.find(item => item.size === s);
+                          sizeStock = sizeItem ? sizeItem.stock : 0;
+                        } else if (product.sizeStock && product.sizeStock.length > 0) {
+                          const sizeItem = product.sizeStock.find(item => item.size === s);
+                          sizeStock = sizeItem ? sizeItem.stock : 0;
+                        } else {
+                          sizeStock = product.stock || 0;
+                        }
+                        
                         const isOutOfStock = sizeStock === 0;
                         return (
                           <button
