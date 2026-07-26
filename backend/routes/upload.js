@@ -8,7 +8,7 @@ const { authenticate, requireAdmin } = require('../middleware/auth');
 // Configure multer for file uploads (version 2.x)
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadDir = path.join(__dirname, '../../frontend/public/uploads');
+    const uploadDir = path.join(__dirname, '../uploads');
     
     // Create directory if it doesn't exist
     if (!fs.existsSync(uploadDir)) {
@@ -53,9 +53,9 @@ router.post('/image', authenticate, requireAdmin, upload.single('image'), (req, 
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    // Return URL that points to the production backend
-    const backendUrl = 'https://riders-galaxy-backend.onrender.com';
-    const imageUrl = `${backendUrl}/riders-galaxy/uploads/${req.file.filename}`;
+    // Return URL pointing to backend API
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+    const imageUrl = `${backendUrl}/api/uploads/${req.file.filename}`;
     
     res.json({
       success: true,
@@ -88,10 +88,10 @@ router.post('/images', authenticate, requireAdmin, upload.array('images'), (req,
       mimetype: f.mimetype
     })));
 
-    // Return full URLs that point to the production backend
-    const backendUrl = 'https://riders-galaxy-backend.onrender.com';
+    // Return URLs pointing to backend API
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
     const imageUrls = req.files.map(file => {
-      return `${backendUrl}/riders-galaxy/uploads/${file.filename}`;
+      return `${backendUrl}/api/uploads/${file.filename}`;
     });
     
     console.log('Generated image URLs:', imageUrls);
@@ -111,7 +111,7 @@ router.post('/images', authenticate, requireAdmin, upload.array('images'), (req,
 router.delete('/image/:filename', authenticate, requireAdmin, (req, res) => {
   try {
     const filename = req.params.filename;
-    const filePath = path.join(__dirname, '../../frontend/public/uploads', filename);
+    const filePath = path.join(__dirname, '../uploads', filename);
     
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);

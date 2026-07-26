@@ -42,3 +42,5 @@ frontend/src/assets/uploads/*
 !frontend/src/assets/uploads/.gitkeep
 frontend/public/uploads/*
 !frontend/public/uploads/.gitkeep
+backend/uploads/*
+!backend/uploads/.gitkeep

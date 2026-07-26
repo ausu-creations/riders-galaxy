@@ -22,8 +22,8 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from frontend public folder
-app.use('/riders-galaxy/uploads', express.static(path.join(__dirname, '../frontend/public/uploads')));
+// Serve static files from backend uploads folder
+app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 app.use('/api/auth', authRoutes);
