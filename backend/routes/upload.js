@@ -53,8 +53,9 @@ router.post('/image', authenticate, requireAdmin, upload.single('image'), (req, 
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    // Return URL pointing to backend API
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+    // Return URL pointing to backend API - detect environment
+    const isProduction = process.env.NODE_ENV === 'production';
+    const backendUrl = isProduction ? 'https://riders-galaxy-backend.onrender.com' : 'http://localhost:5000';
     const imageUrl = `${backendUrl}/api/uploads/${req.file.filename}`;
     
     res.json({
@@ -88,8 +89,9 @@ router.post('/images', authenticate, requireAdmin, upload.array('images'), (req,
       mimetype: f.mimetype
     })));
 
-    // Return URLs pointing to backend API
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+    // Return URLs pointing to backend API - detect environment
+    const isProduction = process.env.NODE_ENV === 'production';
+    const backendUrl = isProduction ? 'https://riders-galaxy-backend.onrender.com' : 'http://localhost:5000';
     const imageUrls = req.files.map(file => {
       return `${backendUrl}/api/uploads/${file.filename}`;
     });
