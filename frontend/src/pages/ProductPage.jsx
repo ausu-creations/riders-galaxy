@@ -23,9 +23,16 @@ export default function ProductPage() {
   // Update state when product becomes available
   useEffect(() => {
     if (product) {
+      const firstColor = product.colors?.[0] || "";
       setSelectedSize(product.sizes?.[0] || "");
-      setSelectedColor(product.colors?.[0] || "");
-      setMainImage(product.image || "");
+      setSelectedColor(firstColor);
+      
+      // Set the correct image for the first selected color
+      if (firstColor && product.colorImages && product.colorImages[firstColor] && product.colorImages[firstColor].length > 0) {
+        setMainImage(product.colorImages[firstColor][0]);
+      } else {
+        setMainImage(product.image || "");
+      }
       setCurrentImageIndex(0);
     }
   }, [product]);
@@ -76,7 +83,7 @@ export default function ProductPage() {
   }
 
   // Get images for the selected color, or default to product images
-  const productImages = selectedColor && product.colorImages && product.colorImages[selectedColor] 
+  const productImages = selectedColor && product.colorImages && product.colorImages[selectedColor] && product.colorImages[selectedColor].length > 0
     ? product.colorImages[selectedColor] 
     : (product.images && product.images.length > 0 ? product.images : [product.image]);
 
