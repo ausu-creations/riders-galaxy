@@ -1,28 +1,27 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const { v2: cloudinary } = require('cloudinary');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const { authenticate, requireAdmin } = require('../middleware/auth');
 
-// Configure multer for file uploads (version 2.x)
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const uploadDir = path.join(__dirname, '../uploads');
-    
-    // Create directory if it doesn't exist
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    // Generate unique filename
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const ext = path.extname(file.originalname);
-    const name = path.basename(file.originalname, ext);
-    cb(null, name + '-' + uniqueSuffix + ext);
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Configure Cloudinary storage
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'riders-galaxy/products',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+    transformation: [
+      { width: 800, height: 800, crop: 'limit' }, // Limit max dimensions
+      { quality: 'auto' } // Auto-optimize quality
+    ]
   }
 });
 
@@ -53,10 +52,8 @@ router.post('/image', authenticate, requireAdmin, upload.single('image'), (req, 
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    // Return URL pointing to backend API - detect environment
-    const isProduction = process.env.NODE_ENV === 'production';
-    const backendUrl = isProduction ? 'https://riders-galaxy-backend.onrender.com' : 'http://localhost:5000';
-    const imageUrl = `${backendUrl}/api/uploads/${req.file.filename}`;
+    // Cloudinary automatically provides the URL in req.file.path
+    const imageUrl = req.file.path;
     
     res.json({
       success: true,
@@ -89,12 +86,8 @@ router.post('/images', authenticate, requireAdmin, upload.array('images'), (req,
       mimetype: f.mimetype
     })));
 
-    // Return URLs pointing to backend API - detect environment
-    const isProduction = process.env.NODE_ENV === 'production';
-    const backendUrl = isProduction ? 'https://riders-galaxy-backend.onrender.com' : 'http://localhost:5000';
-    const imageUrls = req.files.map(file => {
-      return `${backendUrl}/api/uploads/${file.filename}`;
-    });
+    // Cloudinary automatically provides URLs in req.file.path
+    const imageUrls = req.files.map(file => file.path);
     
     console.log('Generated image URLs:', imageUrls);
     
@@ -110,13 +103,14 @@ router.post('/images', authenticate, requireAdmin, upload.array('images'), (req,
 });
 
 // Delete image
-router.delete('/image/:filename', authenticate, requireAdmin, (req, res) => {
+router.delete('/image/:publicId', authenticate, requireAdmin, async (req, res) => {
   try {
-    const filename = req.params.filename;
-    const filePath = path.join(__dirname, '../uploads', filename);
+    const publicId = req.params.publicId;
     
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    // Delete from Cloudinary
+    const result = await cloudinary.uploader.destroy(publicId);
+    
+    if (result.result === 'ok') {
       res.json({ success: true, message: 'Image deleted successfully' });
     } else {
       res.status(404).json({ error: 'Image not found' });

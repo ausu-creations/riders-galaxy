@@ -22,13 +22,6 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from backend uploads folder with CORS headers
-app.use('/api/uploads', (req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET');
-  next();
-}, express.static(path.join(__dirname, 'uploads')));
-
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/orders', orderRoutes);
