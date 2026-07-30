@@ -52,6 +52,16 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  compatibleBikes: [{
+    brand: {
+      type: String,
+      required: true,
+    },
+    models: [{
+      type: String,
+      required: true,
+    }],
+  }],
   image: String,
   images: [String],
   stock: {

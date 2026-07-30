@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   deploy:
-    if: false  # Disabled - using main branch deployment instead
+    if: true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

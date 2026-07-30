@@ -1,5 +1,6 @@
 import React from "react";
 import DoubleThumbSlider from "../common/DoubleThumbSlider";
+import ShopByBikeFilter from "./ShopByBikeFilter";
 
 const DEFAULT_CATEGORIES = [
   "Air Filter",
@@ -32,6 +33,8 @@ export default function FiltersSidebar({
   setSelectedBrands,
   priceRange = { min: 0, max: 0 },
   setPriceRange,
+  selectedBikes = [],
+  setSelectedBikes,
 }) {
   function toggleCategory(cat) {
     if (selectedCategories.includes(cat)) {
@@ -104,6 +107,11 @@ export default function FiltersSidebar({
           )}
         </ul>
       </div>
+
+      <ShopByBikeFilter 
+        selectedBikes={selectedBikes} 
+        setSelectedBikes={setSelectedBikes} 
+      />
 
       <div className="mb-4">
         <h5 className="mb-3">Price Range (INR)</h5>

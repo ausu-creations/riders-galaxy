@@ -7,6 +7,7 @@ const orderRoutes = require('./routes/orders');
 const paymentRoutes = require('./routes/payment');
 const uploadRoutes = require('./routes/upload');
 const productRoutes = require('./routes/products');
+const bikeRoutes = require('./routes/bikes');
 const path = require('path');
 
 const app = express();
@@ -28,6 +29,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/bikes', bikeRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

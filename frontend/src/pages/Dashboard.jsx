@@ -23,6 +23,7 @@ function DashboardContent() {
     sizeStock: {}, // Legacy: individual stock for each size
     colorImages: {}, // Color-specific images mapping (arrays of images per color)
     colorSizeStock: {}, // New: color-specific size stock mapping
+    compatibleBikes: [], // Bike compatibility array
   });
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadedImages, setUploadedImages] = useState([]);
@@ -33,6 +34,10 @@ function DashboardContent() {
   const [availableCategories, setAvailableCategories] = useState([]);
   const [showOtherBrand, setShowOtherBrand] = useState(false);
   const [showOtherCategory, setShowOtherCategory] = useState(false);
+
+  // Bikes data for compatibility
+  const [bikesData, setBikesData] = useState({});
+  const [loadingBikes, setLoadingBikes] = useState(true);
 
   // Default categories and brands (same as shop page)
   const DEFAULT_CATEGORIES = [
@@ -74,6 +79,15 @@ function DashboardContent() {
     name: "", email: "", password: "", phone: "", address: "", role: "customer",
   });
 
+  // Bikes management state
+  const [showBikeForm, setShowBikeForm] = useState(false);
+  const [editingBike, setEditingBike] = useState(null);
+  const [bikeFormData, setBikeFormData] = useState({
+    brand: "", models: "", // comma-separated
+  });
+  const [bikesList, setBikesList] = useState([]); // Store bikes with IDs
+  const [expandedBikeBrands, setExpandedBikeBrands] = useState({}); // Track expanded brands in form
+
   // Fetch orders
   useEffect(() => {
     if (activeTab === 'orders') {
@@ -90,6 +104,13 @@ function DashboardContent() {
     }
   }, [activeTab]);
 
+  // Fetch bikes when bikes tab is activated
+  useEffect(() => {
+    if (activeTab === 'bikes') {
+      fetchBikes();
+    }
+  }, [activeTab]);
+
   // Extract unique brands and categories from products and merge with defaults
   useEffect(() => {
     const productBrands = [...new Set(products.map(p => p.brand).filter(Boolean))].sort();
@@ -98,7 +119,7 @@ function DashboardContent() {
     // Merge with defaults
     const allBrands = [...new Set([...DEFAULT_BRANDS, ...productBrands])].sort();
     const allCategories = [...new Set([...DEFAULT_CATEGORIES, ...productCategories])].sort();
-    
+
     // Ensure "Others" is always at the end if present
     const brandOthersIndex = allBrands.indexOf("Others");
     if (brandOthersIndex > -1) {
@@ -111,10 +132,27 @@ function DashboardContent() {
       allCategories.splice(categoryOthersIndex, 1);
       allCategories.push("Others");
     }
-    
+
     setAvailableBrands(allBrands);
     setAvailableCategories(allCategories);
   }, [products]);
+
+  const fetchBikes = async () => {
+    try {
+      setLoadingBikes(true);
+      const response = await api.get('/bikes');
+      if (response.bikes) {
+        setBikesData(response.bikes);
+        setBikesList(response.bikesList || []);
+      }
+    } catch (error) {
+      console.error('Error fetching bikes:', error);
+      setBikesData({});
+      setBikesList([]);
+    } finally {
+      setLoadingBikes(false);
+    }
+  };
 
   const fetchOrders = async () => {
     try {
@@ -215,7 +253,8 @@ function DashboardContent() {
       stock: parseInt(productFormData.stock) || 0,
       sizeStock: sizeStock,
       colorImages: productFormData.colorImages || {},
-      colorSizeStock: colorSizeStock // Include color-specific size stock
+      colorSizeStock: colorSizeStock, // Include color-specific size stock
+      compatibleBikes: productFormData.compatibleBikes || []
     };
 
     try {
@@ -433,6 +472,57 @@ function DashboardContent() {
     });
   };
 
+  // Handle bike brand toggle (expand/collapse only)
+  const handleBikeBrandToggle = (brand) => {
+    setExpandedBikeBrands(prev => ({
+      ...prev,
+      [brand]: !prev[brand]
+    }));
+  };
+
+  // Check if all models for a brand are selected
+  const isBrandFullySelected = (brand) => {
+    const brandEntry = productFormData.compatibleBikes.find(cb => cb.brand === brand);
+    if (!brandEntry) return false;
+    return brandEntry.models.length === bikesData[brand].length;
+  };
+
+  // Check if any models for a brand are selected
+  const isBrandPartiallySelected = (brand) => {
+    const brandEntry = productFormData.compatibleBikes.find(cb => cb.brand === brand);
+    if (!brandEntry) return false;
+    return brandEntry.models.length > 0 && brandEntry.models.length < bikesData[brand].length;
+  };
+
+  // Handle bike model toggle
+  const handleBikeModelToggle = (brand, model) => {
+    const compatibleBikes = [...productFormData.compatibleBikes];
+    const brandIndex = compatibleBikes.findIndex(cb => cb.brand === brand);
+    
+    if (brandIndex === -1) {
+      // Brand doesn't exist, add it with this model
+      compatibleBikes.push({ brand, models: [model] });
+    } else {
+      const brandEntry = compatibleBikes[brandIndex];
+      if (brandEntry.models.includes(model)) {
+        // Remove model
+        brandEntry.models = brandEntry.models.filter(m => m !== model);
+        // Remove brand entry if no models left
+        if (brandEntry.models.length === 0) {
+          compatibleBikes.splice(brandIndex, 1);
+        }
+      } else {
+        // Add model if not already present
+        brandEntry.models.push(model);
+      }
+    }
+    
+    setProductFormData({
+      ...productFormData,
+      compatibleBikes: compatibleBikes
+    });
+  };
+
   // Handle size checkbox change
   const handleSizeCheckboxChange = (size) => {
     const currentSizes = productFormData.sizes ? productFormData.sizes.split(",").map(s => s.trim()).filter(s => s) : [];
@@ -559,13 +649,26 @@ function DashboardContent() {
       stock: product.stock || 0,
       sizeStock: sizeStockObj,
       colorImages: product.colorImages || {},
-      colorSizeStock: colorSizeStockObj // Load color-specific size stock
+      colorSizeStock: colorSizeStockObj, // Load color-specific size stock
+      compatibleBikes: product.compatibleBikes || []
     });
     
     console.log('Set productFormData colorImages:', productFormData.colorImages);
     
     setUploadedImages(product.images || []);
     setColorImageUploads({});
+    
+    // Expand brands that have selected models
+    const expandedBrands = {};
+    if (product.compatibleBikes && Array.isArray(product.compatibleBikes)) {
+      product.compatibleBikes.forEach(cb => {
+        if (cb.models && cb.models.length > 0) {
+          expandedBrands[cb.brand] = true;
+        }
+      });
+    }
+    setExpandedBikeBrands(expandedBrands);
+    
     setShowProductForm(true);
   };
 
@@ -589,11 +692,13 @@ function DashboardContent() {
       sizeStock: {},
       colorImages: {},
       colorSizeStock: {},
+      compatibleBikes: [],
     });
     setUploadedImages([]);
     setColorImageUploads({});
     setShowOtherBrand(false);
     setShowOtherCategory(false);
+    setExpandedBikeBrands({});
   };
 
   // Order handlers
@@ -655,6 +760,52 @@ function DashboardContent() {
     setUserFormData({
       name: "", email: "", password: "", phone: "", address: "", role: "customer",
     });
+  };
+
+  // Bike management handlers
+  const handleAddBike = () => {
+    setEditingBike(null);
+    setBikeFormData({ brand: "", models: "" });
+    setShowBikeForm(true);
+  };
+
+  const handleEditBike = (bikeId) => {
+    const bike = bikesList.find(b => b._id === bikeId);
+    if (bike) {
+      setEditingBike(bikeId);
+      setBikeFormData({ brand: bike.brand, models: bike.models.join(", ") });
+      setShowBikeForm(true);
+    }
+  };
+
+  const handleBikeSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const models = bikeFormData.models.split(",").map(m => m.trim()).filter(m => m);
+      
+      if (editingBike) {
+        // Update existing bike brand
+        await api.put(`/bikes/${editingBike}`, { brand: bikeFormData.brand, models });
+        await fetchBikes(); // Refresh bikes data
+      } else {
+        // Create new bike brand
+        await api.post('/bikes', { brand: bikeFormData.brand, models });
+        await fetchBikes(); // Refresh bikes data
+      }
+      
+      setShowBikeForm(false);
+      setBikeFormData({ brand: "", models: "" });
+      setEditingBike(null);
+    } catch (error) {
+      console.error('Error saving bike:', error);
+      alert('Failed to save bike brand');
+    }
+  };
+
+  const handleCancelBike = () => {
+    setShowBikeForm(false);
+    setEditingBike(null);
+    setBikeFormData({ brand: "", models: "" });
   };
 
   const handleDeleteUser = async (userId) => {
@@ -725,6 +876,14 @@ function DashboardContent() {
             onClick={() => setActiveTab('users')}
           >
             👥 Users ({users.length})
+          </button>
+        </li>
+        <li className="nav-item">
+          <button 
+            className={`nav-link ${activeTab === 'bikes' ? 'active' : ''}`}
+            onClick={() => setActiveTab('bikes')}
+          >
+            🏍️ Bikes ({bikesList.length})
           </button>
         </li>
       </ul>
@@ -1148,6 +1307,65 @@ function DashboardContent() {
                         </div>
                       </div>
 
+                      <div className="mb-3">
+                        <label className="form-label">Bike Compatibility</label>
+                        {loadingBikes ? (
+                          <div className="text-muted">Loading bikes...</div>
+                        ) : Object.keys(bikesData).length === 0 ? (
+                          <div className="text-muted">No bikes available</div>
+                        ) : (
+                          <div className="bike-compatibility-container">
+                            {Object.keys(bikesData).map((brand) => (
+                              <div key={brand} className="bike-brand-group mb-3">
+                                <label className="form-check d-flex align-items-center mb-2">
+                                  <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    checked={expandedBikeBrands[brand] || false}
+                                    onChange={() => handleBikeBrandToggle(brand)}
+                                    style={{ cursor: 'pointer' }}
+                                  />
+                                  <span className="form-check-label ms-2 fw-bold" style={{ cursor: 'pointer', fontSize: '0.95rem' }}>
+                                    {brand}
+                                  </span>
+                                </label>
+                                {expandedBikeBrands[brand] && (
+                                  <div
+                                    className="bike-models-list ms-4"
+                                    style={{
+                                      paddingLeft: '16px',
+                                      borderLeft: '2px solid #e0e0e0',
+                                      marginTop: '8px'
+                                    }}
+                                  >
+                                    {bikesData[brand].map((model) => {
+                                      const bikeEntry = productFormData.compatibleBikes.find(cb => cb.brand === brand);
+                                      const isModelSelected = bikeEntry && bikeEntry.models.includes(model);
+                                      return (
+                                        <div key={model} className="bike-model-item mb-1">
+                                          <label className="form-check" style={{ cursor: 'pointer' }}>
+                                            <input
+                                              type="checkbox"
+                                              className="form-check-input"
+                                              checked={isModelSelected}
+                                              onChange={() => handleBikeModelToggle(brand, model)}
+                                              style={{ fontSize: '0.85rem' }}
+                                            />
+                                            <span className="form-check-label ms-2" style={{ fontSize: '0.85rem' }}>
+                                              {model}
+                                            </span>
+                                          </label>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
                       <div className="d-flex gap-2">
                         <button type="submit" className="btn btn-success">
                           {editingProduct ? "Update Product" : "Add Product"}
@@ -1534,6 +1752,120 @@ function DashboardContent() {
                               onClick={() => handleDeleteUser(user._id)}
                             >
                               Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Bikes Tab */}
+      {activeTab === 'bikes' && (
+        <div>
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h3>Bike Management</h3>
+            <button className="btn btn-primary" onClick={handleAddBike}>
+              + Add Bike Brand
+            </button>
+          </div>
+
+          {showBikeForm && (
+            <div className="card mb-4 shadow">
+              <div className="card-header bg-primary text-white">
+                <h5 className="mb-0">{editingBike ? "Edit Bike Brand" : "Add New Bike Brand"}</h5>
+              </div>
+              <div className="card-body">
+                <form onSubmit={handleBikeSubmit}>
+                  <div className="mb-3">
+                    <label className="form-label">Brand Name</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={bikeFormData.brand}
+                      onChange={(e) => setBikeFormData({ ...bikeFormData, brand: e.target.value })}
+                      required
+                      disabled={!!editingBike}
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Models (comma-separated)</label>
+                    <textarea
+                      className="form-control"
+                      rows="4"
+                      value={bikeFormData.models}
+                      onChange={(e) => setBikeFormData({ ...bikeFormData, models: e.target.value })}
+                      placeholder="e.g., Classic 350, Bullet 500, Himalayan"
+                      required
+                    />
+                    <small className="text-muted">Enter bike models separated by commas</small>
+                  </div>
+                  <div className="d-flex gap-2">
+                    <button type="submit" className="btn btn-success">
+                      {editingBike ? "Update Bike Brand" : "Add Bike Brand"}
+                    </button>
+                    <button type="button" className="btn btn-secondary" onClick={handleCancelBike}>
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {loadingBikes ? (
+            <div className="text-center py-5">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+              <p className="mt-3">Loading bikes...</p>
+            </div>
+          ) : Object.keys(bikesData).length === 0 ? (
+            <div className="alert alert-info text-center py-5">
+              <div className="mb-3">
+                <span style={{ fontSize: '3rem' }}>🏍️</span>
+              </div>
+              <h4 className="alert-heading">No bikes added yet!</h4>
+              <p className="mb-0">Add bike brands and models to enable the "Shop by Bike" filter on your shop page.</p>
+              <p className="mb-0 text-muted small">Use the "+ Add Bike Brand" button to get started.</p>
+            </div>
+          ) : (
+            <div className="card shadow">
+              <div className="card-header bg-dark text-white">
+                <h5 className="mb-0">Bike Brands ({Object.keys(bikesData).length})</h5>
+              </div>
+              <div className="card-body p-0">
+                <div className="table-responsive">
+                  <table className="table table-hover mb-0">
+                    <thead className="table-light">
+                      <tr>
+                        <th>Brand</th>
+                        <th>Models</th>
+                        <th>Count</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {bikesList.map((bike) => (
+                        <tr key={bike._id}>
+                          <td className="fw-bold">{bike.brand}</td>
+                          <td>
+                            <div style={{ maxHeight: '100px', overflowY: 'auto' }}>
+                              {bike.models.join(', ')}
+                            </div>
+                          </td>
+                          <td>{bike.models.length}</td>
+                          <td>
+                            <button
+                              className="btn btn-sm btn-outline-primary me-1"
+                              onClick={() => handleEditBike(bike._id)}
+                            >
+                              Edit
                             </button>
                           </td>
                         </tr>

@@ -32,6 +32,7 @@ export default function Shop() {
   const { products: productsData } = useProducts();
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
+  const [selectedBikes, setSelectedBikes] = useState([]);
   const [priceRange, setPriceRange] = useState({ min: 50, max: 89999 });
   const [sortBy, setSortBy] = useState("newest");
   const [viewMode, setViewMode] = useState("grid"); // grid or list
@@ -123,6 +124,23 @@ export default function Shop() {
         if (!ok) return false;
       }
 
+      // bike filter - check if product is compatible with selected bikes
+      if (selectedBikes.length) {
+        const ok = selectedBikes.some(bikeKey => {
+          // Extract brand and model from bikeKey (format: "Brand-Model")
+          const [bikeBrand, bikeModel] = bikeKey.split('-');
+          // Check if product has compatibleBikes array and includes this bike
+          if (p.compatibleBikes && Array.isArray(p.compatibleBikes)) {
+            return p.compatibleBikes.some(compatibleBike => 
+              compatibleBike.brand === bikeBrand && compatibleBike.models.includes(bikeModel)
+            );
+          }
+          // If product has no compatibleBikes data, don't show it when bike filter is active
+          return false;
+        });
+        if (!ok) return false;
+      }
+
       // price filter
       if (p.price < (priceRange.min || 0) || p.price > (priceRange.max || Infinity)) return false;
 
@@ -139,18 +157,19 @@ export default function Shop() {
     if (sortBy === "name-asc") return res.sort((a, b) => a.title.localeCompare(b.title));
     if (sortBy === "name-desc") return res.sort((a, b) => b.title.localeCompare(a.title));
     return res.sort((a, b) => (b.createdAt || b.id) - (a.createdAt || a.id));
-  }, [selectedCategories, selectedBrands, priceRange, sortBy, search, productsData, categories, brands]);
+  }, [selectedCategories, selectedBrands, selectedBikes, priceRange, sortBy, search, productsData, categories, brands]);
 
   function clearFilters() {
     setSelectedCategories([]);
     setSelectedBrands([]);
+    setSelectedBikes([]);
     // reset priceRange to default values
     setPriceRange({ min: 50, max: 89999 });
     setSortBy("newest");
     setSearchParams({});
   }
 
-  const activeFiltersCount = selectedCategories.length + selectedBrands.length;
+  const activeFiltersCount = selectedCategories.length + selectedBrands.length + selectedBikes.length;
 
   return (
     <>
@@ -247,6 +266,8 @@ export default function Shop() {
                 setSelectedCategories={setSelectedCategories}
                 selectedBrands={selectedBrands}
                 setSelectedBrands={setSelectedBrands}
+                selectedBikes={selectedBikes}
+                setSelectedBikes={setSelectedBikes}
                 priceRange={priceRange}
                 setPriceRange={setPriceRange}
               />
