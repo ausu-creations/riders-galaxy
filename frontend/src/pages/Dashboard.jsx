@@ -111,6 +111,13 @@ function DashboardContent() {
     }
   }, [activeTab]);
 
+  // Fetch bikes when product form is shown (for bike compatibility)
+  useEffect(() => {
+    if (showProductForm) {
+      fetchBikes();
+    }
+  }, [showProductForm]);
+
   // Extract unique brands and categories from products and merge with defaults
   useEffect(() => {
     const productBrands = [...new Set(products.map(p => p.brand).filter(Boolean))].sort();

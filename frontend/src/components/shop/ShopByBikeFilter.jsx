@@ -99,7 +99,7 @@ export default function ShopByBikeFilter({ selectedBikes, setSelectedBikes }) {
                 onChange={() => toggleBrand(brand)}
                 style={{ cursor: 'pointer' }}
               />
-              <span className="form-check-label ms-2 fw-bold" style={{ cursor: 'pointer', fontSize: '0.95rem' }}>
+              <span className="form-check-label ms-2" style={{ cursor: 'pointer', fontSize: '0.95rem' }}>
                 {brand}
               </span>
             </label>
