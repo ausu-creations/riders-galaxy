@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import api from "../../utils/api";
 
 // Shop by Bike filter component with dynamic bike data from backend
+// Updated deployment to ensure changes are visible
 export default function ShopByBikeFilter({ selectedBikes, setSelectedBikes }) {
   const [bikesData, setBikesData] = useState({});
   const [expandedBrands, setExpandedBrands] = useState({});
